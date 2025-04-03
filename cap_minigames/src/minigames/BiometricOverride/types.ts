@@ -1,4 +1,4 @@
-export type BiometricType = 'fingerprint' | 'retina' | 'facial' | 'palm' | 'voice';
+export type BiometricType = 'fingerprint' | 'retina' | 'facial';
 
 export interface BiometricPattern {
   id: string;

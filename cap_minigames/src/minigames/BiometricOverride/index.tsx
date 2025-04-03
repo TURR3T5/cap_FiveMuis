@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Tabs } from '@mantine/core';
-import { Clock, RotateCcw, Check, X, Fingerprint, Eye, User, Hand, Mic, AlertTriangle, Loader } from 'lucide-react';
+import { Clock, RotateCcw, Check, X, Fingerprint, Eye, User, AlertTriangle, Loader } from 'lucide-react';
 import { MinigameProps } from '../../core/types';
 import { useMinigame } from '../../core/useMinigame';
 import { BiometricPattern, BiometricType, BiometricOverrideConfig } from './types';
@@ -24,29 +24,25 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 	const [overallProgress, setOverallProgress] = useState(0);
 	const [showSuccess, setShowSuccess] = useState(false);
 	const [showFailure, setShowFailure] = useState(false);
-	const [forceRender, setForceRender] = useState(0);
+	const [_forceRender, setForceRender] = useState(0);
+
+	const canvasRefs = useRef<Map<string, HTMLCanvasElement | null>>(new Map());
 
 	const successMessage = 'BIOMETRISK VERIFIKATION SUCCESFULD';
 	const successDescription = 'Sikkerhedssystem omgået. Biometriske mønstre accepteret.';
 	const failureMessage = 'BIOMETRISK ADGANG NÆGTET';
 	const failureDescription = 'Kunne ikke omgå biometrisk sikkerhed inden for tidsgrænsen.';
 
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-
 	const biometricIcons = {
 		fingerprint: <Fingerprint />,
 		retina: <Eye />,
 		facial: <User />,
-		palm: <Hand />,
-		voice: <Mic />,
 	};
 
 	const biometricLabels = {
 		fingerprint: 'Fingeraftryk',
 		retina: 'Retina',
 		facial: 'Ansigtsgenkendelse',
-		palm: 'Håndaftryk',
-		voice: 'Stemme',
 	};
 
 	const initializeGame = useCallback(() => {
@@ -79,6 +75,8 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 		setShowSuccess(false);
 		setShowFailure(false);
 
+		canvasRefs.current = new Map();
+
 		if (debug) {
 			console.log('Biometric Override initialized with:', {
 				patterns: newPatterns,
@@ -100,30 +98,21 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 	}, [isActive, initializeGame]);
 
 	useEffect(() => {
-		drawCanvas();
+		if (activeTab !== null) {
+			drawCanvas(activeTab);
+		}
 	}, [activeTab, userPatterns, patterns]);
 
-	useEffect(() => {
-		if (config?.timeLimit && timeElapsed >= config.timeLimit) {
-			setShowFailure(true);
+	const drawCanvas = (tabIndex: string) => {
+		const patternIndex = parseInt(tabIndex);
+		const pattern = patterns[patternIndex];
+		if (!pattern) return;
 
-			setTimeout(() => {
-				completeGame(false, overallProgress);
-				onComplete?.({ success: false, score: overallProgress, timeTaken: timeElapsed });
-			}, 3000);
-		}
-	}, [timeElapsed, config?.timeLimit, completeGame, onComplete, overallProgress, forceRender]);
-
-	const drawCanvas = () => {
-		const canvas = canvasRef.current;
+		const canvas = canvasRefs.current.get(pattern.id);
 		if (!canvas) return;
 
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
-
-		const patternIndex = activeTab ? parseInt(activeTab) : 0;
-		const pattern = patterns[patternIndex];
-		if (!pattern) return;
 
 		const cellSize = canvas.width / gridSize;
 
@@ -233,6 +222,16 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 		}
 	};
 
+	const setCanvasRef = (element: HTMLCanvasElement | null, patternId: string) => {
+		if (element) {
+			canvasRefs.current.set(patternId, element);
+
+			if (activeTab !== null && patterns[parseInt(activeTab)]?.id === patternId) {
+				setTimeout(() => drawCanvas(activeTab), 0);
+			}
+		}
+	};
+
 	const handlePatternReset = () => {
 		if (!activeTab) return;
 
@@ -286,35 +285,67 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 
 		if (point.x === lastPoint.x && point.y === lastPoint.y) return;
 
-		const gridPoint = `${point.x},${point.y}`;
 		const patternIndex = parseInt(activeTab);
 		const pattern = patterns[patternIndex];
 		const currentUserPattern = [...(userPatterns[pattern.id] || [])];
 
-		if (currentUserPattern.length >= 2) {
-			if (currentUserPattern[currentUserPattern.length - 2] === gridPoint) {
-				setUserPatterns((prev) => {
-					const updated = [...prev[pattern.id]];
-					updated.pop();
-					return {
-						...prev,
-						[pattern.id]: updated,
-					};
-				});
+		const interpolatedPoints = interpolateGridLine(lastPoint.x, lastPoint.y, point.x, point.y);
 
-				setLastPoint(point);
-				return;
+		let newPoints: string[] = [...currentUserPattern];
+
+		for (const pt of interpolatedPoints) {
+			const gridPoint = `${pt.x},${pt.y}`;
+
+			if (newPoints.length > 0 && newPoints[newPoints.length - 1] === gridPoint) {
+				continue;
+			}
+
+			if (currentUserPattern.length >= 2 && currentUserPattern[currentUserPattern.length - 2] === gridPoint) {
+				newPoints.pop();
+			} else if (!newPoints.includes(gridPoint)) {
+				newPoints.push(gridPoint);
 			}
 		}
 
-		if (!currentUserPattern.includes(gridPoint)) {
+		if (newPoints.length !== currentUserPattern.length) {
 			setUserPatterns((prev) => ({
 				...prev,
-				[pattern.id]: [...(prev[pattern.id] || []), gridPoint],
+				[pattern.id]: newPoints,
 			}));
 		}
 
 		setLastPoint(point);
+	};
+
+	const interpolateGridLine = (x0: number, y0: number, x1: number, y1: number): { x: number; y: number }[] => {
+		const points: { x: number; y: number }[] = [];
+
+		const dx = Math.abs(x1 - x0);
+		const dy = Math.abs(y1 - y0);
+		const sx = x0 < x1 ? 1 : -1;
+		const sy = y0 < y1 ? 1 : -1;
+		let err = dx - dy;
+
+		let x = x0;
+		let y = y0;
+
+		while (true) {
+			points.push({ x, y });
+
+			if (x === x1 && y === y1) break;
+
+			const e2 = 2 * err;
+			if (e2 > -dy) {
+				err -= dy;
+				x += sx;
+			}
+			if (e2 < dx) {
+				err += dx;
+				y += sy;
+			}
+		}
+
+		return points;
 	};
 
 	const handleCanvasMouseUp = () => {
@@ -379,7 +410,13 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 	};
 
 	const getCanvasCoordinates = (e: React.MouseEvent<HTMLCanvasElement>): { x: number; y: number } | null => {
-		const canvas = canvasRef.current;
+		if (!activeTab) return null;
+
+		const patternIndex = parseInt(activeTab);
+		const pattern = patterns[patternIndex];
+		if (!pattern) return null;
+
+		const canvas = canvasRefs.current.get(pattern.id);
 		if (!canvas) return null;
 
 		const rect = canvas.getBoundingClientRect();
@@ -491,7 +528,7 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 								}}
 							>
 								<canvas
-									ref={canvasRef}
+									ref={(el) => setCanvasRef(el, pattern.id)}
 									width={400}
 									height={400}
 									onMouseDown={handleCanvasMouseDown}
@@ -506,7 +543,6 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 									}}
 								/>
 
-								{}
 								<Box
 									style={{
 										position: 'absolute',
@@ -571,7 +607,7 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 										Tegner... {(userPatterns[patterns[parseInt(activeTab || '0')].id] || []).length} punkter
 									</Text>
 								</Box>
-								{}
+
 								{patternStatuses[pattern.id] === 'success' && (
 									<Box
 										style={{
@@ -637,7 +673,6 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 						</Group>
 					</Group>
 
-					{}
 					{boConfig.showGuides && (
 						<Box
 							p='xs'
