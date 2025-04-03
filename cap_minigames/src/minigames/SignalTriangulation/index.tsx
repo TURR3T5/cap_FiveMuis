@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Modal, Slider } from '@mantine/core';
+import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Slider } from '@mantine/core';
 import { Clock, RotateCcw, X, MapPin, Antenna, Radio, Loader } from 'lucide-react';
 import { MinigameProps } from '../../core/types';
 import { useMinigame } from '../../core/useMinigame';
@@ -22,6 +22,11 @@ const SignalTriangulation: React.FC<MinigameProps> = ({ config, onComplete, onCa
 	const [showSuccess, setShowSuccess] = useState(false);
 	const [showFailure, setShowFailure] = useState(false);
 	const [forceRender, setForceRender] = useState(0);
+
+	const successMessage = 'SIGNAL LOKALISERET';
+	const successDescription = 'Signal triangulering succesfuld. Målposition identificeret.';
+	const failureMessage = 'SIGNAL MISTET';
+	const failureDescription = 'Kunne ikke triangulere målsignalet inden for tidsgrænsen.';
 
 	const minFrequency = stConfig.minFrequency || 60;
 	const maxFrequency = stConfig.maxFrequency || 160;
@@ -286,10 +291,12 @@ const SignalTriangulation: React.FC<MinigameProps> = ({ config, onComplete, onCa
 										]}
 									/>
 								</Box>
-								<Text size='xs' w={60} ta='right'>
+
+								<Text size='xs' w={80} ta='right' style={{ paddingRight: '8px' }}>
 									{userFrequencies[index]} MHz
 								</Text>
-								<Progress value={signalStrengths[index] * 100} size='sm' w={50} color={receiver.color} />
+
+								<Progress value={signalStrengths[index] * 100} size='sm' w={60} color={receiver.color} />
 							</Group>
 						))}
 					</Stack>
@@ -307,46 +314,77 @@ const SignalTriangulation: React.FC<MinigameProps> = ({ config, onComplete, onCa
 				</Stack>
 			</Paper>
 
-			{/* Success Modal */}
-			<Modal opened={showSuccess} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #002030 0%, #004060 100%)', border: '1px solid #00a0ff', borderRadius: theme.radius.md }}>
-					<Box mb={20} style={{ position: 'relative' }}>
-						<MapPin size={60} color='#00ff00' strokeWidth={1.5} />
-						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #00ff00', opacity: 0.5, animation: 'st-pulse 2s infinite' }} />
-					</Box>
-					<Text size='xl' fw={700} mb='md' style={{ color: '#00ff00' }}>
-						SIGNAL LOKALISERET
-					</Text>
-					<Text mb='lg' style={{ color: '#a0ffa0' }}>
-						Signal triangulering succesfuld. Målposition identificeret.
-					</Text>
-					<Text c='#80c0ff'>Præcision: {Math.round(accuracy)}%</Text>
-					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Loader size='sm' color='#00ff00' type='dots' />
-					</Box>
-				</Box>
-			</Modal>
-
-			{/* Failure Modal */}
-			<Modal opened={showFailure} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #300010 0%, #600030 100%)', border: '1px solid #ff0050', borderRadius: theme.radius.md }}>
-					<Box mb={20} style={{ position: 'relative' }}>
-						<Radio size={60} color='#ff0050' strokeWidth={1.5} />
-						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #ff0050', opacity: 0.3, animation: 'st-flicker 1s infinite' }} />
-					</Box>
-					<Text size='xl' fw={700} mb='md' style={{ color: '#ff0050' }}>
-						SIGNAL MISTET
-					</Text>
-					<Text mb='lg' style={{ color: '#ff8080' }}>
-						Kunne ikke triangulere målsignalet inden for tidsgrænsen.
-					</Text>
-					{userPosition && <Text c='dimmed'>Opnået præcision: {Math.round(accuracy)}%</Text>}
-					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Loader size='sm' color='#ff0050' type='dots' />
+			{showSuccess && (
+				<Box
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0,0,0,0.7)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						gap: '16px',
+						zIndex: 1000,
+					}}
+				>
+					<Box style={{ textAlign: 'center', background: 'linear-gradient(135deg, #002030 0%, #004060 100%)', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #00a0ff', maxWidth: '80%' }}>
+						<Box mb={20} style={{ position: 'relative' }}>
+							<MapPin size={60} color='#00ff00' />
+							<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #00ff00', opacity: 0.5, animation: 'st-pulse 2s infinite' }} />
+						</Box>
+						<Text size='xl' fw={700} mb='md' style={{ color: '#00ff00' }}>
+							{successMessage}
+						</Text>
+						<Text mb='lg' style={{ color: '#a0ffa0' }}>
+							{successDescription}
+						</Text>
+						<Text c='#80c0ff'>Præcision: {Math.round(accuracy)}%</Text>
+						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Loader size='sm' color='#00ff00' type='dots' />
+						</Box>
 					</Box>
 				</Box>
-			</Modal>
+			)}
 
+			{showFailure && (
+				<Box
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0,0,0,0.7)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						gap: '16px',
+						zIndex: 1000,
+					}}
+				>
+					<Box style={{ textAlign: 'center', background: 'linear-gradient(135deg, #300010 0%, #600030 100%)', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #ff0050', maxWidth: '80%' }}>
+						<Box mb={20} style={{ position: 'relative' }}>
+							<Radio size={60} color='#ff0050' />
+							<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #ff0050', opacity: 0.3, animation: 'st-flicker 1s infinite' }} />
+						</Box>
+						<Text size='xl' fw={700} mb='md' style={{ color: '#ff0050' }}>
+							{failureMessage}
+						</Text>
+						<Text mb='lg' style={{ color: '#ff8080' }}>
+							{failureDescription}
+						</Text>
+						{userPosition && <Text c='dimmed'>Opnået præcision: {Math.round(accuracy)}%</Text>}
+						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Loader size='sm' color='#ff0050' type='dots' />
+						</Box>
+					</Box>
+				</Box>
+			)}
 			<style>{`
         @keyframes st-pulse {
           0% { opacity: 0.3; transform: scale(1); }

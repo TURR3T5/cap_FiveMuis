@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Modal, Tabs } from '@mantine/core';
+import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Tabs } from '@mantine/core';
 import { Clock, RotateCcw, Check, X, Fingerprint, Eye, User, Hand, Mic, AlertTriangle, Loader } from 'lucide-react';
 import { MinigameProps } from '../../core/types';
 import { useMinigame } from '../../core/useMinigame';
@@ -25,6 +25,11 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 	const [showSuccess, setShowSuccess] = useState(false);
 	const [showFailure, setShowFailure] = useState(false);
 	const [forceRender, setForceRender] = useState(0);
+
+	const successMessage = 'BIOMETRISK VERIFIKATION SUCCESFULD';
+	const successDescription = 'Sikkerhedssystem omgået. Biometriske mønstre accepteret.';
+	const failureMessage = 'BIOMETRISK ADGANG NÆGTET';
+	const failureDescription = 'Kunne ikke omgå biometrisk sikkerhed inden for tidsgrænsen.';
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -651,45 +656,77 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 				</Stack>
 			</Paper>
 
-			{}
-			<Modal opened={showSuccess} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #002010 0%, #004020 100%)', border: '1px solid #00ff80', borderRadius: theme.radius.md }}>
-					<Box mb={20} style={{ position: 'relative' }}>
-						<Fingerprint size={60} color='#00ff80' strokeWidth={1.5} />
-						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #00ff80', opacity: 0.5, animation: 'bo-pulse 2s infinite' }} />
-					</Box>
-					<Text size='xl' fw={700} mb='md' style={{ color: '#00ff80' }}>
-						BIOMETRISK VERIFIKATION SUCCESFULD
-					</Text>
-					<Text mb='lg' style={{ color: '#a0ffd0' }}>
-						Sikkerhedssystem omgået. Biometriske mønstre accepteret.
-					</Text>
-					<Text c='#80c0a0'>Nøjagtighed: {Math.round(overallProgress)}%</Text>
-					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Loader size='sm' color='#00ff80' type='bars' />
+			{showSuccess && (
+				<Box
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0,0,0,0.7)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						gap: '16px',
+						zIndex: 1000,
+					}}
+				>
+					<Box style={{ textAlign: 'center', background: 'linear-gradient(135deg, #002010 0%, #004020 100%)', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #00ff80', maxWidth: '80%' }}>
+						<Box mb={20} style={{ position: 'relative' }}>
+							<Fingerprint size={60} color='#00ff80' />
+							<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #00ff80', opacity: 0.5, animation: 'bo-pulse 2s infinite' }} />
+						</Box>
+						<Text size='xl' fw={700} mb='md' style={{ color: '#00ff80' }}>
+							{successMessage}
+						</Text>
+						<Text mb='lg' style={{ color: '#a0ffd0' }}>
+							{successDescription}
+						</Text>
+						<Text c='#80c0a0'>Nøjagtighed: {Math.round(overallProgress)}%</Text>
+						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Loader size='sm' color='#00ff80' type='bars' />
+						</Box>
 					</Box>
 				</Box>
-			</Modal>
+			)}
 
-			{}
-			<Modal opened={showFailure} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #200010 0%, #400020 100%)', border: '1px solid #ff0040', borderRadius: theme.radius.md }}>
-					<Box mb={20} style={{ position: 'relative' }}>
-						<Fingerprint size={60} color='#ff0040' strokeWidth={1.5} />
-						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #ff0040', opacity: 0.3, animation: 'bo-flicker 1s infinite' }} />
-					</Box>
-					<Text size='xl' fw={700} mb='md' style={{ color: '#ff0040' }}>
-						BIOMETRISK ADGANG NÆGTET
-					</Text>
-					<Text mb='lg' style={{ color: '#ff8080' }}>
-						Kunne ikke omgå biometrisk sikkerhed inden for tidsgrænsen.
-					</Text>
-					<Text c='dimmed'>Opnået match: {Math.round(overallProgress)}%</Text>
-					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Loader size='sm' color='#ff0040' type='dots' />
+			{showFailure && (
+				<Box
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0,0,0,0.7)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						gap: '16px',
+						zIndex: 1000,
+					}}
+				>
+					<Box style={{ textAlign: 'center', background: 'linear-gradient(135deg, #200010 0%, #400020 100%)', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #ff0040', maxWidth: '80%' }}>
+						<Box mb={20} style={{ position: 'relative' }}>
+							<Fingerprint size={60} color='#ff0040' />
+							<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #ff0040', opacity: 0.3, animation: 'bo-flicker 1s infinite' }} />
+						</Box>
+						<Text size='xl' fw={700} mb='md' style={{ color: '#ff0040' }}>
+							{failureMessage}
+						</Text>
+						<Text mb='lg' style={{ color: '#ff8080' }}>
+							{failureDescription}
+						</Text>
+						<Text c='dimmed'>Opnået match: {Math.round(overallProgress)}%</Text>
+						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Loader size='sm' color='#ff0040' type='dots' />
+						</Box>
 					</Box>
 				</Box>
-			</Modal>
+			)}
 
 			<style>{`
         @keyframes bo-pulse {

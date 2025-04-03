@@ -81,61 +81,66 @@ const generateFingerprintPattern = (
     gridSize: number,
     length: number
   ) => {
-
+  
     const startPoint = patternPath[0];
     patternPath.length = 0;
     patternPath.push(startPoint);
-
+  
     const [startX, startY] = getCurrentPosition(startPoint);
-
-    const pattern = [
-      [startX, startY],         
-      [startX+1, startY],       
-      [startX+2, startY],       
-      [startX+3, startY+1],     
-      [startX+3, startY+2],     
-      [startX+2, startY+3],     
-      [startX+1, startY+3],     
-      [startX, startY+3],       
-      [startX-1, startY+3],     
-      [startX-2, startY+2],     
-      [startX-2, startY+1],     
-      [startX-2, startY],       
-      [startX-1, startY-1],     
-      [startX, startY-1],       
-      [startX+1, startY-2],     
-      [startX+1, startY-3],     
-      [startX, startY-3],       
-      [startX-1, startY-2],     
-      [startX-2, startY-1],     
-      [startX-3, startY],       
-      [startX-3, startY+1]      
-    ];
-
+  
+    const centerX = Math.floor(gridSize / 2);
+    const centerY = Math.floor(gridSize / 2);
+  
+    const pattern = [];
+  
+    pattern.push([centerX, centerY]);
+  
+    for (let layer = 1; layer < Math.floor(gridSize / 2); layer++) {
+  
+      for (let x = centerX - layer; x <= centerX + layer; x++) {
+        pattern.push([x, centerY - layer]);
+      }
+  
+      for (let y = centerY - layer + 1; y <= centerY + layer; y++) {
+        pattern.push([centerX + layer, y]);
+      }
+  
+      for (let x = centerX + layer - 1; x >= centerX - layer; x--) {
+        pattern.push([x, centerY + layer]);
+      }
+  
+      for (let y = centerY + layer - 1; y > centerY - layer; y--) {
+        pattern.push([centerX - layer, y]);
+      }
+  
+      if (pattern.length >= length) break;
+    }
+  
     for (const [x, y] of pattern) {
       if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
         patternPath.push(`${x},${y}`);
+        if (patternPath.length >= length) break;
       }
     }
-
+  
     if (patternPath.length < length) {
       let angle = 0;
       let radius = 1;
-
+  
       while (patternPath.length < length) {
         angle += 0.6;
         radius += 0.1;
-
-        const x = Math.floor(startX + radius * Math.cos(angle));
-        const y = Math.floor(startY + radius * Math.sin(angle));
-
+  
+        const x = Math.floor(centerX + radius * Math.cos(angle));
+        const y = Math.floor(centerY + radius * Math.sin(angle));
+  
         if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
           const point = `${x},${y}`;
           if (!patternPath.includes(point)) {
             patternPath.push(point);
           }
         }
-
+  
         if (angle > Math.PI * 8) break;
       }
     }

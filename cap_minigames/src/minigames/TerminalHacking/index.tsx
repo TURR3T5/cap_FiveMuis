@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Progress, Text, Group, Paper, ScrollArea, TextInput, Modal, useMantineTheme } from '@mantine/core';
+import { Box, Progress, Text, Group, Paper, ScrollArea, TextInput, useMantineTheme } from '@mantine/core';
 import { Clock, X, Check, Terminal as TerminalIcon, AlertTriangle, Loader } from 'lucide-react';
 import { MinigameProps } from '../../core/types';
 import { useMinigame } from '../../core/useMinigame';
@@ -23,6 +23,11 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 
 	const terminalRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
+
+	const successMessage = 'ADGANG GODKENDT';
+	const successDescription = 'System succesfuldt infiltreret. Sikkerhedsprotokoller omgået.';
+	const failureMessage = 'ADGANG NÆGTET';
+	const failureDescription = attempts >= maxAttempts ? 'For mange forkerte forsøg. System låst.' : 'Tiden udløb. Sikkerhedsprotokoller aktiveret.';
 
 	const customConfig = config?.customOptions as TerminalHackingConfig;
 
@@ -285,49 +290,83 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 				</Group>
 			</Paper>
 
-			<Modal opened={showSuccess} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center', backgroundColor: '#001800', border: '1px solid #00ff00', borderRadius: theme.radius.md }}>
-					<Box mb={20} style={{ animation: 'pulseterminal 1.5s infinite' }}>
-						<Check size={60} color='#00ff00' stroke='md' />
-					</Box>
-					<Text size='xl' fw={700} mb='md' style={{ color: '#00ff00' }}>
-						ADGANG GODKENDT
-					</Text>
-					<Text mb='lg' style={{ color: '#90ff90' }}>
-						System succesfuldt infiltreret. Sikkerhedsprotokoller omgået.
-					</Text>
-					<Box p='xs' style={{ backgroundColor: 'rgba(0, 255, 0, 0.1)', borderRadius: theme.radius.sm }}>
-						<Text c='#00ff00' ff='monospace'>
-							Kode mønster: {codePattern}
+			{showSuccess && (
+				<Box
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0,0,0,0.7)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						gap: '16px',
+						zIndex: 1000,
+					}}
+				>
+					<Box style={{ textAlign: 'center', backgroundColor: '#001800', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #00ff00', maxWidth: '80%' }}>
+						<Box mb={20} style={{ animation: 'pulseterminal 1.5s infinite' }}>
+							<Check size={60} color='#00ff00' />
+						</Box>
+						<Text size='xl' fw={700} mb='md' style={{ color: '#00ff00' }}>
+							{successMessage}
 						</Text>
-					</Box>
-					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Loader size='sm' color='#00ff00' />
+						<Text mb='lg' style={{ color: '#90ff90' }}>
+							{successDescription}
+						</Text>
+						<Box p='xs' style={{ backgroundColor: 'rgba(0, 255, 0, 0.1)', borderRadius: theme.radius.sm }}>
+							<Text c='#00ff00' ff='monospace'>
+								Kode mønster: {codePattern}
+							</Text>
+						</Box>
+						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Loader size='sm' color='#00ff00' />
+						</Box>
 					</Box>
 				</Box>
-			</Modal>
+			)}
 
-			<Modal opened={showFailure} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center', backgroundColor: '#180000', border: '1px solid #ff0000', borderRadius: theme.radius.md }}>
-					<Box mb={20} style={{ animation: 'shake 0.5s' }}>
-						<X size={60} color='#ff0000' stroke='md' />
-					</Box>
-					<Text size='xl' fw={700} mb='md' style={{ color: '#ff0000' }}>
-						ADGANG NÆGTET
-					</Text>
-					<Text mb='lg' style={{ color: '#ff9090' }}>
-						{attempts >= maxAttempts ? 'For mange forkerte forsøg. System låst.' : 'Tiden udløb. Sikkerhedsprotokoller aktiveret.'}
-					</Text>
-					<Box p='xs' style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', borderRadius: theme.radius.sm }}>
-						<Text c='#ff5555' ff='monospace'>
-							Korrekt kommando var: {targetCommand}
+			{showFailure && (
+				<Box
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0,0,0,0.7)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						gap: '16px',
+						zIndex: 1000,
+					}}
+				>
+					<Box style={{ textAlign: 'center', backgroundColor: '#180000', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #ff0000', maxWidth: '80%' }}>
+						<Box mb={20} style={{ animation: 'shake 0.5s' }}>
+							<X size={60} color='#ff0000' />
+						</Box>
+						<Text size='xl' fw={700} mb='md' style={{ color: '#ff0000' }}>
+							{failureMessage}
 						</Text>
-					</Box>
-					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Loader size='sm' color='#ff0000' />
+						<Text mb='lg' style={{ color: '#ff9090' }}>
+							{failureDescription}
+						</Text>
+						<Box p='xs' style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', borderRadius: theme.radius.sm }}>
+							<Text c='#ff5555' ff='monospace'>
+								Korrekt kommando var: {targetCommand}
+							</Text>
+						</Box>
+						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Loader size='sm' color='#ff0000' />
+						</Box>
 					</Box>
 				</Box>
-			</Modal>
+			)}
 
 			{debug && (
 				<Box mt='xs' p='xs' bg='rgba(0,0,0,0.2)' style={{ borderRadius: 4 }}>

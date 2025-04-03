@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Modal, Badge, Accordion, ScrollArea, ActionIcon } from '@mantine/core';
+import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Badge, Accordion, ScrollArea, ActionIcon } from '@mantine/core';
 import { Clock, Check, X, AlertTriangle, Lock, Database, FileText, RefreshCw, CheckCircle, XCircle, HelpCircle, Loader, ArrowDown, ArrowUp } from 'lucide-react';
 import { MinigameProps } from '../../core/types';
 import { useMinigame } from '../../core/useMinigame';
@@ -19,6 +19,11 @@ const BlockchainVerification: React.FC<MinigameProps> = ({ config, onComplete, o
 	const [showSuccess, setShowSuccess] = useState(false);
 	const [showFailure, setShowFailure] = useState(false);
 	const [forceRender, setForceRender] = useState(0);
+
+	const successMessage = 'BLOCKCHAIN VERIFICERET';
+	const successDescription = 'Blockchain-data verificeret med succes. Alle gyldige blokke er bekræftet.';
+	const failureMessage = 'VERIFIKATION FEJLEDE';
+	const failureDescription = 'Kunne ikke fuldføre blockchain-verifikationen inden for tidsgrænsen.';
 
 	const selectedBlockData = useMemo(() => blocks.find((b) => b.id === selectedBlock), [blocks, selectedBlock]);
 
@@ -428,43 +433,77 @@ const BlockchainVerification: React.FC<MinigameProps> = ({ config, onComplete, o
 				</Stack>
 			</Paper>
 
-			<Modal opened={showSuccess} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #002030 0%, #004060 100%)', border: '1px solid #00c0ff', borderRadius: theme.radius.md }}>
-					<Box mb={20} style={{ position: 'relative' }}>
-						<Database size={60} color='#00c0ff' strokeWidth={1.5} />
-						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #00c0ff', opacity: 0.5, animation: 'pulse 2s infinite' }} />
-					</Box>
-					<Text size='xl' fw={700} mb='md' style={{ color: '#00c0ff' }}>
-						BLOCKCHAIN VERIFICERET
-					</Text>
-					<Text mb='lg' style={{ color: '#a0d0ff' }}>
-						Blockchain-data verificeret med succes. Alle gyldige blokke er bekræftet.
-					</Text>
-					<Text c='#80c0ff'>Verificeringsrate: {Math.round(verificationProgress)}%</Text>
-					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Loader size='sm' color='#00c0ff' type='bars' />
+			{showSuccess && (
+				<Box
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0,0,0,0.7)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						gap: '16px',
+						zIndex: 1000,
+					}}
+				>
+					<Box style={{ textAlign: 'center', background: 'linear-gradient(135deg, #002030 0%, #004060 100%)', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #00c0ff', maxWidth: '80%' }}>
+						<Box mb={20} style={{ position: 'relative' }}>
+							<Database size={60} color='#00c0ff' />
+							<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #00c0ff', opacity: 0.5, animation: 'pulse 2s infinite' }} />
+						</Box>
+						<Text size='xl' fw={700} mb='md' style={{ color: '#00c0ff' }}>
+							{successMessage}
+						</Text>
+						<Text mb='lg' style={{ color: '#a0d0ff' }}>
+							{successDescription}
+						</Text>
+						<Text c='#80c0ff'>Verificeringsrate: {Math.round(verificationProgress)}%</Text>
+						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Loader size='sm' color='#00c0ff' type='bars' />
+						</Box>
 					</Box>
 				</Box>
-			</Modal>
+			)}
 
-			<Modal opened={showFailure} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #200030 0%, #400060 100%)', border: '1px solid #8000ff', borderRadius: theme.radius.md }}>
-					<Box mb={20} style={{ position: 'relative' }}>
-						<Database size={60} color='#8000ff' strokeWidth={1.5} />
-						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #8000ff', opacity: 0.3, animation: 'flicker 1s infinite' }} />
-					</Box>
-					<Text size='xl' fw={700} mb='md' style={{ color: '#8000ff' }}>
-						VERIFIKATION FEJLEDE
-					</Text>
-					<Text mb='lg' style={{ color: '#d0a0ff' }}>
-						Kunne ikke fuldføre blockchain-verifikationen inden for tidsgrænsen.
-					</Text>
-					<Text c='dimmed'>Opnået verificeringsrate: {Math.round(verificationProgress)}%</Text>
-					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Loader size='sm' color='#8000ff' type='dots' />
+			{showFailure && (
+				<Box
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0,0,0,0.7)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						gap: '16px',
+						zIndex: 1000,
+					}}
+				>
+					<Box style={{ textAlign: 'center', background: 'linear-gradient(135deg, #200030 0%, #400060 100%)', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #8000ff', maxWidth: '80%' }}>
+						<Box mb={20} style={{ position: 'relative' }}>
+							<Database size={60} color='#8000ff' />
+							<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #8000ff', opacity: 0.3, animation: 'flicker 1s infinite' }} />
+						</Box>
+						<Text size='xl' fw={700} mb='md' style={{ color: '#8000ff' }}>
+							{failureMessage}
+						</Text>
+						<Text mb='lg' style={{ color: '#d0a0ff' }}>
+							{failureDescription}
+						</Text>
+						<Text c='dimmed'>Opnået verificeringsrate: {Math.round(verificationProgress)}%</Text>
+						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Loader size='sm' color='#8000ff' type='dots' />
+						</Box>
 					</Box>
 				</Box>
-			</Modal>
+			)}
 
 			{debug && (
 				<Box mt='xs' p='xs' bg='rgba(0,0,0,0.2)' style={{ borderRadius: 4 }}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Modal, ActionIcon, ScrollArea, rgba } from '@mantine/core';
+import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, ActionIcon, ScrollArea, rgba } from '@mantine/core';
 import { Clock, Shuffle, RotateCcw, X, FileLock, FileWarning, Lightbulb, Loader, HardDrive, ChevronUp, ChevronDown } from 'lucide-react';
 import { MinigameProps } from '../../core/types';
 import { useMinigame } from '../../core/useMinigame';
@@ -22,6 +22,11 @@ const MemoryFragmentSequencing: React.FC<MinigameProps> = ({ config, onComplete,
 	const [showSuccess, setShowSuccess] = useState(false);
 	const [showFailure, setShowFailure] = useState(false);
 	const [forceRender, setForceRender] = useState(0);
+
+	const successMessage = 'HUKOMMELSESSTREAM GENDANNET';
+	const successDescription = 'Datasekvens succesfuldt rekonstrueret og verificeret.';
+	const failureMessage = 'HUKOMMELSESFEJL';
+	const failureDescription = 'Kunne ikke rekonstruere datasekvensen inden for tidsgrænsen.';
 
 	const maxHints = useMemo(() => Math.max(1, Math.floor(msConfig.fragmentCount! / 2)), [msConfig.fragmentCount]);
 
@@ -302,57 +307,89 @@ const MemoryFragmentSequencing: React.FC<MinigameProps> = ({ config, onComplete,
 				</Stack>
 			</Paper>
 
-			{/* Success Modal */}
-			<Modal opened={showSuccess} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #002020 0%, #004040 100%)', border: '1px solid #00a080', borderRadius: theme.radius.md }}>
-					<Box mb={20} style={{ position: 'relative' }}>
-						<FileLock size={60} color='#00ff80' strokeWidth={1.5} />
-						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #00ff80', opacity: 0.5, animation: 'mfs-pulse 2s infinite' }} />
-					</Box>
-					<Text size='xl' fw={700} mb='md' style={{ color: '#00ff80' }}>
-						HUKOMMELSESSTREAM GENDANNET
-					</Text>
-					<Text mb='lg' style={{ color: '#a0ffd0' }}>
-						Datasekvens succesfuldt rekonstrueret og verificeret.
-					</Text>
-					<Group justify='center' gap={5} mb='md'>
-						<Text c='#80c0a0'>Nøjagtighed:</Text>
-						<Text fw={700} c='#ffffff'>
-							{Math.round(accuracy)}%
+			{showSuccess && (
+				<Box
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0,0,0,0.7)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						gap: '16px',
+						zIndex: 1000,
+					}}
+				>
+					<Box style={{ textAlign: 'center', background: 'linear-gradient(135deg, #002020 0%, #004040 100%)', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #00a080', maxWidth: '80%' }}>
+						<Box mb={20} style={{ position: 'relative' }}>
+							<FileLock size={60} color='#00ff80'/>
+							<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #00ff80', opacity: 0.5, animation: 'mfs-pulse 2s infinite' }} />
+						</Box>
+						<Text size='xl' fw={700} mb='md' style={{ color: '#00ff80' }}>
+							{successMessage}
 						</Text>
-					</Group>
-
-					{hintsUsed > 0 && (
-						<Text size='sm' c='dimmed'>
-							Brugte hints: {hintsUsed} (-{hintsUsed * 5} point)
+						<Text mb='lg' style={{ color: '#a0ffd0' }}>
+							{successDescription}
 						</Text>
-					)}
+						<Group justify='center' gap={5} mb='md'>
+							<Text c='#80c0a0'>Nøjagtighed:</Text>
+							<Text fw={700} c='#ffffff'>
+								{Math.round(accuracy)}%
+							</Text>
+						</Group>
 
-					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Loader size='sm' color='#00ff80' type='bars' />
+						{hintsUsed > 0 && (
+							<Text size='sm' c='dimmed'>
+								Brugte hints: {hintsUsed} (-{hintsUsed * 5} point)
+							</Text>
+						)}
+
+						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Loader size='sm' color='#00ff80' type='bars' />
+						</Box>
 					</Box>
 				</Box>
-			</Modal>
+			)}
 
-			{/* Failure Modal */}
-			<Modal opened={showFailure} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #200020 0%, #400040 100%)', border: '1px solid #800080', borderRadius: theme.radius.md }}>
-					<Box mb={20} style={{ position: 'relative' }}>
-						<FileWarning size={60} color='#ff00ff' strokeWidth={1.5} />
-						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #ff00ff', opacity: 0.3, animation: 'mfs-flicker 1s infinite' }} />
-					</Box>
-					<Text size='xl' fw={700} mb='md' style={{ color: '#ff00ff' }}>
-						HUKOMMELSESFEJL
-					</Text>
-					<Text mb='lg' style={{ color: '#ffa0ff' }}>
-						Kunne ikke rekonstruere datasekvensen inden for tidsgrænsen.
-					</Text>
-					<Text c='dimmed'>Opnået nøjagtighed: {Math.round(accuracy)}%</Text>
-					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Loader size='sm' color='#ff00ff' type='dots' />
+			{showFailure && (
+				<Box
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0,0,0,0.7)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						gap: '16px',
+						zIndex: 1000,
+					}}
+				>
+					<Box style={{ textAlign: 'center', background: 'linear-gradient(135deg, #200020 0%, #400040 100%)', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #800080', maxWidth: '80%' }}>
+						<Box mb={20} style={{ position: 'relative' }}>
+							<FileWarning size={60} color='#ff00ff'/>
+							<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #ff00ff', opacity: 0.3, animation: 'mfs-flicker 1s infinite' }} />
+						</Box>
+						<Text size='xl' fw={700} mb='md' style={{ color: '#ff00ff' }}>
+							{failureMessage}
+						</Text>
+						<Text mb='lg' style={{ color: '#ffa0ff' }}>
+							{failureDescription}
+						</Text>
+						<Text c='dimmed'>Opnået nøjagtighed: {Math.round(accuracy)}%</Text>
+						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Loader size='sm' color='#ff00ff' type='dots' />
+						</Box>
 					</Box>
 				</Box>
-			</Modal>
+			)}
 
 			<style>{`
         @keyframes mfs-pulse {

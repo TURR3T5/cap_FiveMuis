@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Modal } from '@mantine/core';
+import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack } from '@mantine/core';
 import { Clock, RotateCcw, Check, X, AlertTriangle, Eye, EyeOff, Loader } from 'lucide-react';
 import { MinigameProps } from '../../core/types';
 import { useMinigame } from '../../core/useMinigame';
@@ -25,6 +25,11 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 	const [showSuccess, setShowSuccess] = useState(false);
 	const [showFailure, setShowFailure] = useState(false);
 	const [forceRender, setForceRender] = useState(0);
+
+	const successMessage = 'KVANTE DEKRYPTERING SUCCESFULD';
+	const successDescription = 'Kvante mønster succesfuldt dekrypteret og stabiliseret.';
+	const failureMessage = 'DEKRYPTERING MISLYKKEDES';
+	const failureDescription = 'Kunne ikke etablere kvante mønster match.';
 
 	const particleColorMap = {
 		alpha: theme.colors.blue[6],
@@ -349,43 +354,77 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 				</Stack>
 			</Paper>
 
-			<Modal opened={showSuccess} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #001030 0%, #003060 100%)', border: '1px solid #00a0ff', borderRadius: theme.radius.md }}>
-					<Box mb={20} style={{ position: 'relative' }}>
-						<Check size={60} color='#00a0ff' stroke='md' />
-						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #00a0ff', opacity: 0.5, animation: 'pulse 2s infinite' }} />
-					</Box>
-					<Text size='xl' fw={700} mb='md' style={{ color: '#00a0ff' }}>
-						KVANTE DEKRYPTERING SUCCESFULD
-					</Text>
-					<Text mb='lg' style={{ color: '#80c0ff' }}>
-						Kvante mønster succesfuldt dekrypteret og stabiliseret.
-					</Text>
-					<Text c='dimmed'>Match Rate: {Math.round(similarity)}%</Text>
-					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Loader size='sm' color='#00a0ff' type='dots' />
+			{showSuccess && (
+				<Box
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0,0,0,0.7)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						gap: '16px',
+						zIndex: 1000,
+					}}
+				>
+					<Box style={{ textAlign: 'center', background: 'linear-gradient(135deg, #001030 0%, #003060 100%)', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #00a0ff', maxWidth: '80%' }}>
+						<Box mb={20} style={{ position: 'relative' }}>
+							<Check size={60} color='#00a0ff' />
+							<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #00a0ff', opacity: 0.5, animation: 'pulse 2s infinite' }} />
+						</Box>
+						<Text size='xl' fw={700} mb='md' style={{ color: '#00a0ff' }}>
+							{successMessage}
+						</Text>
+						<Text mb='lg' style={{ color: '#80c0ff' }}>
+							{successDescription}
+						</Text>
+						<Text c='dimmed'>Match Rate: {Math.round(similarity)}%</Text>
+						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Loader size='sm' color='#00a0ff' type='dots' />
+						</Box>
 					</Box>
 				</Box>
-			</Modal>
+			)}
 
-			<Modal opened={showFailure} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #300010 0%, #600030 100%)', border: '1px solid #ff00a0', borderRadius: theme.radius.md }}>
-					<Box mb={20} style={{ position: 'relative' }}>
-						<X size={60} color='#ff00a0' stroke='md' />
-						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #ff00a0', opacity: 0.3, animation: 'flicker 1s infinite' }} />
-					</Box>
-					<Text size='xl' fw={700} mb='md' style={{ color: '#ff00a0' }}>
-						DEKRYPTERING MISLYKKEDES
-					</Text>
-					<Text mb='lg' style={{ color: '#ff80c0' }}>
-						Kunne ikke etablere kvante mønster match.
-					</Text>
-					<Text c='dimmed'>Match Rate: {Math.round(similarity)}%</Text>
-					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Loader size='sm' color='#ff00a0' type='dots' />
+			{showFailure && (
+				<Box
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0,0,0,0.7)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						gap: '16px',
+						zIndex: 1000,
+					}}
+				>
+					<Box style={{ textAlign: 'center', background: 'linear-gradient(135deg, #300010 0%, #600030 100%)', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #ff00a0', maxWidth: '80%' }}>
+						<Box mb={20} style={{ position: 'relative' }}>
+							<X size={60} color='#ff00a0' />
+							<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #ff00a0', opacity: 0.3, animation: 'flicker 1s infinite' }} />
+						</Box>
+						<Text size='xl' fw={700} mb='md' style={{ color: '#ff00a0' }}>
+							{failureMessage}
+						</Text>
+						<Text mb='lg' style={{ color: '#ff80c0' }}>
+							{failureDescription}
+						</Text>
+						<Text c='dimmed'>Match Rate: {Math.round(similarity)}%</Text>
+						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Loader size='sm' color='#ff00a0' type='dots' />
+						</Box>
 					</Box>
 				</Box>
-			</Modal>
+			)}
 		</Box>
 	);
 };
