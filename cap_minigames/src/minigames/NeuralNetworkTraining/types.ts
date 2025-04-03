@@ -2,22 +2,22 @@ export type CategoryType = 'animal' | 'person' | 'vehicle' | 'building' | 'natur
 
 export interface DataPoint {
   id: string;
-  image: string; // URL or path to image (will use placeholders for FiveM)
+  image: string; 
   category: CategoryType;
-  features: number[]; // Features represented as a vector
-  difficulty: number; // 0-1, where 1 is most difficult to classify
+  features: number[]; 
+  difficulty: number; 
 }
 
 export interface TrainingResult {
-  accuracy: number; // 0-100
-  speed: number; // Decisions per second
+  accuracy: number; 
+  speed: number; 
   mistakes: number;
 }
 
 export interface NeuralNetworkConfig {
   categories?: CategoryType[];
   dataPointCount?: number;
-  timePerDecision?: number; // milliseconds
-  difficultyMultiplier?: number; // 0.5-2.0
+  timePerDecision?: number; 
+  difficultyMultiplier?: number; 
   showHelp?: boolean;
 }

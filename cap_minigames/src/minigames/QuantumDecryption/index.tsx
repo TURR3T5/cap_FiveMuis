@@ -1,4 +1,3 @@
-// src/minigames/QuantumDecryption/index.tsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Modal } from '@mantine/core';
 import { Clock, RotateCcw, Check, X, AlertTriangle, Eye, EyeOff, Loader } from 'lucide-react';
@@ -56,7 +55,6 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 		setShowSuccess(false);
 		setShowFailure(false);
 
-		// Debug logging
 		if (debug) {
 			console.log('Quantum Decryption initialized with:', {
 				particles: newParticles,
@@ -69,12 +67,11 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 		if (isActive) {
 			initializeGame();
 
-			// Set up interval to force re-renders for timer updates
-			const interval = setInterval(() => {
+			const timerInterval = setInterval(() => {
 				setForceRender((prev) => prev + 1);
-			}, 100); // Update every 100ms
+			}, 100);
 
-			return () => clearInterval(interval);
+			return () => clearInterval(timerInterval);
 		}
 	}, [isActive, initializeGame]);
 
@@ -91,7 +88,6 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 			const newSimilarity = calculatePatternSimilarity(userPattern, targetPattern);
 			setSimilarity(newSimilarity);
 
-			// Success threshold based on difficulty
 			const successThreshold = config?.difficulty === 'easy' ? 80 : config?.difficulty === 'medium' ? 90 : 100;
 
 			if (newSimilarity >= successThreshold) {
@@ -122,17 +118,13 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 		} else if (selectedParticle === particleId) {
 			setSelectedParticle(null);
 		} else {
-			// Create a connection
 			const connectionIds = [selectedParticle, particleId].sort() as [string, string];
 
-			// Check if this connection already exists
 			const connectionExists = userConnections.some(([a, b]) => a === connectionIds[0] && b === connectionIds[1]);
 
 			if (connectionExists) {
-				// Remove the connection
 				setUserConnections((prev) => prev.filter(([a, b]) => !(a === connectionIds[0] && b === connectionIds[1])));
 			} else {
-				// Add the connection
 				setUserConnections((prev) => [...prev, connectionIds]);
 			}
 
@@ -149,7 +141,6 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 		setShowTarget((prev) => !prev);
 	};
 
-	// Get particle by ID
 	const getParticleById = (id: string) => {
 		return particles.find((p) => p.id === id);
 	};
@@ -210,9 +201,9 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 							overflow: 'hidden',
 						}}
 					>
-						{/* SVG for particle connections */}
-						<svg width='100%' height='100%' style={{ position: 'absolute', top: 0, left: 0 }}>
-							{/* User connections */}
+						{}
+						<svg width='sm' height='sm' style={{ position: 'absolute', top: 0, left: 0 }}>
+							{}
 							{userConnections.map(([a, b], index) => {
 								const particleA = getParticleById(a);
 								const particleB = getParticleById(b);
@@ -222,7 +213,7 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 								return <line key={`connection-${a}-${b}`} x1={`${particleA.position.x}%`} y1={`${particleA.position.y}%`} x2={`${particleB.position.x}%`} y2={`${particleB.position.y}%`} stroke='rgba(255, 255, 255, 0.7)' strokeWidth='2' />;
 							})}
 
-							{/* Target pattern connections (only visible if showTarget is true) */}
+							{}
 							{showTarget &&
 								targetPattern.connections.map(([a, b], index) => {
 									const particleA = getParticleById(a);
@@ -235,7 +226,7 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 									return <line key={`target-${a}-${b}`} x1={`${particleA.position.x}%`} y1={`${particleA.position.y}%`} x2={`${particleB.position.x}%`} y2={`${particleB.position.y}%`} stroke={isUserConnection ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 0, 0, 0.5)'} strokeWidth='3' strokeDasharray='5,5' />;
 								})}
 
-							{/* Selected particle connection line (while dragging) */}
+							{}
 							{selectedParticle && <line id='dragging-line' x1={`${getParticleById(selectedParticle)?.position.x || 0}%`} y1={`${getParticleById(selectedParticle)?.position.y || 0}%`} x2={`${Math.min(Math.max(0, forceRender % 2 === 0 ? 50 : 50.1), 100)}%`} y2={`${Math.min(Math.max(0, forceRender % 2 === 0 ? 50 : 50.1), 100)}%`} stroke='rgba(255, 255, 255, 0.3)' strokeWidth='2' strokeDasharray='3,3' />}
 						</svg>
 
@@ -335,17 +326,17 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 					<Group justify='space-between'>
 						<Group>
 							<Button variant='light' size='xs' leftSection={<RotateCcw size={16} />} onClick={resetConnections}>
-								Reset
+								Nulstil
 							</Button>
 
 							{(customConfig?.showHints || debug) && (
 								<Button variant='subtle' size='xs' leftSection={showTarget ? <EyeOff size={16} /> : <Eye size={16} />} onClick={toggleTargetHint}>
-									{showTarget ? 'Hide Pattern' : 'Show Pattern'}
+									{showTarget ? 'Skjul Mønster' : 'Vis Mønster'}
 								</Button>
 							)}
 						</Group>
 
-						<Text size='sm'>Pattern Match: {Math.round(similarity)}%</Text>
+						<Text size='sm'>Mønster Match: {Math.round(similarity)}%</Text>
 					</Group>
 
 					{debug && (
@@ -358,29 +349,41 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 				</Stack>
 			</Paper>
 
-			{/* Success Modal */}
 			<Modal opened={showSuccess} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center' }}>
-					<Check size={60} color='green' style={{ marginBottom: 20 }} />
-					<Text size='xl' fw={700} mb='md'>
-						DECRYPTION SUCCESSFUL
+				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #001030 0%, #003060 100%)', border: '1px solid #00a0ff', borderRadius: theme.radius.md }}>
+					<Box mb={20} style={{ position: 'relative' }}>
+						<Check size={60} color='#00a0ff' stroke='md' />
+						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #00a0ff', opacity: 0.5, animation: 'pulse 2s infinite' }} />
+					</Box>
+					<Text size='xl' fw={700} mb='md' style={{ color: '#00a0ff' }}>
+						KVANTE DEKRYPTERING SUCCESFULD
 					</Text>
-					<Text mb='lg'>Quantum pattern successfully decrypted.</Text>
+					<Text mb='lg' style={{ color: '#80c0ff' }}>
+						Kvante mønster succesfuldt dekrypteret og stabiliseret.
+					</Text>
 					<Text c='dimmed'>Match Rate: {Math.round(similarity)}%</Text>
-					<Loader size='sm' style={{ marginTop: 20 }} />
+					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+						<Loader size='sm' color='#00a0ff' type='dots' />
+					</Box>
 				</Box>
 			</Modal>
 
-			{/* Failure Modal */}
 			<Modal opened={showFailure} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center' }}>
-					<X size={60} color='red' style={{ marginBottom: 20 }} />
-					<Text size='xl' fw={700} mb='md'>
-						DECRYPTION FAILED
+				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #300010 0%, #600030 100%)', border: '1px solid #ff00a0', borderRadius: theme.radius.md }}>
+					<Box mb={20} style={{ position: 'relative' }}>
+						<X size={60} color='#ff00a0' stroke='md' />
+						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #ff00a0', opacity: 0.3, animation: 'flicker 1s infinite' }} />
+					</Box>
+					<Text size='xl' fw={700} mb='md' style={{ color: '#ff00a0' }}>
+						DEKRYPTERING MISLYKKEDES
 					</Text>
-					<Text mb='lg'>Unable to establish quantum pattern match.</Text>
+					<Text mb='lg' style={{ color: '#ff80c0' }}>
+						Kunne ikke etablere kvante mønster match.
+					</Text>
 					<Text c='dimmed'>Match Rate: {Math.round(similarity)}%</Text>
-					<Loader size='sm' style={{ marginTop: 20 }} />
+					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+						<Loader size='sm' color='#ff00a0' type='dots' />
+					</Box>
 				</Box>
 			</Modal>
 		</Box>

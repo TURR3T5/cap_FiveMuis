@@ -202,7 +202,6 @@ export const CharacterCreator: React.FC<CharacterCreatorProps> = ({ onSave }) =>
 		}));
 	};
 
-	// Common style for form field containers
 	const fieldContainerStyle = {
 		position: 'relative' as const,
 		backgroundColor: '#1a1a1a',
@@ -211,7 +210,6 @@ export const CharacterCreator: React.FC<CharacterCreatorProps> = ({ onSave }) =>
 		marginBottom: '16px',
 	};
 
-	// Style for validation icon container
 	const validationIconContainerStyle = {
 		position: 'absolute' as const,
 		top: 'calc(50% - 12px)',
@@ -256,7 +254,7 @@ export const CharacterCreator: React.FC<CharacterCreatorProps> = ({ onSave }) =>
 					HELLO, FRIEND! BEFORE YOU START THE GAME, CREATE A CHARACTER AND ALSO ENJOY THE GAME ON THE SERVER, IT WILL BE NICE FOR YOU AND US!
 				</Text>
 
-				{/* First Name Field */}
+				{}
 				<Box style={fieldContainerStyle}>
 					<Text style={{ color: '#6b6b6b', fontSize: '12px', marginBottom: '8px' }}>First name</Text>
 					<TextInput
@@ -280,7 +278,7 @@ export const CharacterCreator: React.FC<CharacterCreatorProps> = ({ onSave }) =>
 					{validations.firstName !== null && <Box style={validationIconContainerStyle}>{validations.firstName ? <Check weight='bold' size={16} color='#4CAF50' /> : <X weight='bold' size={16} color='#F44336' />}</Box>}
 				</Box>
 
-				{/* Last Name Field */}
+				{}
 				<Box style={fieldContainerStyle}>
 					<Text style={{ color: '#6b6b6b', fontSize: '12px', marginBottom: '8px' }}>Last name</Text>
 					<TextInput
@@ -304,9 +302,9 @@ export const CharacterCreator: React.FC<CharacterCreatorProps> = ({ onSave }) =>
 					{validations.lastName !== null && <Box style={validationIconContainerStyle}>{validations.lastName ? <Check weight='bold' size={16} color='#4CAF50' /> : <X weight='bold' size={16} color='#F44336' />}</Box>}
 				</Box>
 
-				{/* Sex Selection - Rearranged to match image */}
+				{}
 				<Group style={{ gap: '10px', marginBottom: '16px' }} align='flex-start' wrap='nowrap'>
-					{/* Left side - label and validation */}
+					{}
 					<Box
 						style={{
 							...fieldContainerStyle,
@@ -330,7 +328,7 @@ export const CharacterCreator: React.FC<CharacterCreatorProps> = ({ onSave }) =>
 						</Box>
 					</Box>
 
-					{/* Right side - gender buttons */}
+					{}
 					<Box style={{ display: 'flex', gap: '10px', flex: 1 }}>
 						<Box
 							style={{
@@ -365,7 +363,7 @@ export const CharacterCreator: React.FC<CharacterCreatorProps> = ({ onSave }) =>
 					</Box>
 				</Group>
 
-				{/* Height Slider - Modified to match image */}
+				{}
 				<Box style={fieldContainerStyle}>
 					<Text style={{ color: '#6b6b6b', fontSize: '12px', marginBottom: '8px' }}>Height</Text>
 
@@ -403,7 +401,7 @@ export const CharacterCreator: React.FC<CharacterCreatorProps> = ({ onSave }) =>
 					</Box>
 				</Box>
 
-				{/* Birth Date Fields */}
+				{}
 				<Box style={{ marginBottom: '30px' }}>
 					<Text style={{ color: '#6b6b6b', fontSize: '12px', marginBottom: '8px' }}>Birth Date</Text>
 					<Group style={{ gap: '10px' }}>
@@ -478,7 +476,7 @@ export const CharacterCreator: React.FC<CharacterCreatorProps> = ({ onSave }) =>
 					</Group>
 				</Box>
 
-				{/* Create Character Button */}
+				{}
 				<Button
 					style={{
 						backgroundColor: '#ff9900',

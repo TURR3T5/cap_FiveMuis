@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Progress, Text, Group, Paper, ScrollArea, TextInput, Modal } from '@mantine/core';
+import { Box, Progress, Text, Group, Paper, ScrollArea, TextInput, Modal, useMantineTheme } from '@mantine/core';
 import { Clock, X, Check, Terminal as TerminalIcon, AlertTriangle, Loader } from 'lucide-react';
 import { MinigameProps } from '../../core/types';
 import { useMinigame } from '../../core/useMinigame';
@@ -19,6 +19,7 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 	const [showSuccess, setShowSuccess] = useState(false);
 	const [showFailure, setShowFailure] = useState(false);
 	const [forceRender, setForceRender] = useState(0);
+	const theme = useMantineTheme();
 
 	const terminalRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -44,7 +45,6 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 		setShowSuccess(false);
 		setShowFailure(false);
 
-		// Add debug information if in debug mode
 		if (debug) {
 			console.log('Terminal Hacking initialized with:', {
 				commands,
@@ -58,22 +58,19 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 		if (isActive) {
 			initializeGame();
 
-			// Set up interval to force re-renders for timer updates
-			const interval = setInterval(() => {
+			const timerInterval = setInterval(() => {
 				setForceRender((prev) => prev + 1);
-			}, 100); // Update every 100ms
+			}, 100);
 
-			return () => clearInterval(interval);
+			return () => clearInterval(timerInterval);
 		}
 	}, [isActive, initializeGame]);
 
 	useEffect(() => {
-		// Scroll to bottom when command history changes
 		if (terminalRef.current) {
 			terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
 		}
 
-		// Focus input
 		if (inputRef.current) {
 			inputRef.current.focus();
 		}
@@ -127,7 +124,6 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 			return;
 		}
 
-		// Debug commands only available in debug mode
 		if (debug && normalizedInput === 'debug') {
 			setCommandHistory((prev) => [...prev, `[DEBUG] Target command: ${targetCommand}`, `[DEBUG] Code pattern: ${codePattern}`]);
 			return;
@@ -137,7 +133,6 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 			setCommandHistory((prev) => [...prev, `ACCESS GRANTED. Security bypassed.`, `System unlocked with code pattern: ${codePattern}`]);
 			setShowSuccess(true);
 
-			// Delay completion to show success screen
 			setTimeout(() => {
 				completeGame(true, 100 - attempts * 20);
 				onComplete?.({ success: true, attempts, timeTaken: timeElapsed });
@@ -150,7 +145,6 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 			setCommandHistory((prev) => [...prev, `ACCESS DENIED. Too many incorrect attempts.`, `System lockdown initiated.`]);
 			setShowFailure(true);
 
-			// Delay completion to show failure screen
 			setTimeout(() => {
 				completeGame(false, 0);
 				onComplete?.({ success: false, attempts: attempts + 1, timeTaken: timeElapsed });
@@ -172,7 +166,6 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 			setShowFailure(true);
 			setCommandHistory((prev) => [...prev, `TIME EXPIRED. Security lockdown initiated.`]);
 
-			// Delay completion to show failure screen
 			setTimeout(() => {
 				completeGame(false, 0);
 				onComplete?.({ success: false, timeTaken: timeElapsed });
@@ -183,7 +176,7 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 	if (!isActive || !config) return null;
 
 	return (
-		<Box style={{ maxWidth: 800, margin: '0 auto' }}>
+		<Box style={{ width: 800, margin: '0 auto' }}>
 			<Paper
 				p='xs'
 				radius='sm'
@@ -219,7 +212,7 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 						color: '#cccccc',
 						fontFamily: 'Consolas, monospace',
 						fontSize: '14px',
-						height: 400,
+						height: 500,
 						display: 'flex',
 						flexDirection: 'column',
 					})}
@@ -292,29 +285,47 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 				</Group>
 			</Paper>
 
-			{/* Success Modal */}
 			<Modal opened={showSuccess} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center' }}>
-					<Check size={60} color='green' stroke='md' style={{ marginBottom: 20 }} />
-					<Text size='xl' fw={700} mb='md'>
-						ACCESS GRANTED
+				<Box p='md' style={{ textAlign: 'center', backgroundColor: '#001800', border: '1px solid #00ff00', borderRadius: theme.radius.md }}>
+					<Box mb={20} style={{ animation: 'pulseterminal 1.5s infinite' }}>
+						<Check size={60} color='#00ff00' stroke='md' />
+					</Box>
+					<Text size='xl' fw={700} mb='md' style={{ color: '#00ff00' }}>
+						ADGANG GODKENDT
 					</Text>
-					<Text mb='lg'>System successfully breached. Security protocols bypassed.</Text>
-					<Text color='dimmed'>Code pattern: {codePattern}</Text>
-					<Loader size='sm' style={{ marginTop: 20 }} />
+					<Text mb='lg' style={{ color: '#90ff90' }}>
+						System succesfuldt infiltreret. Sikkerhedsprotokoller omgået.
+					</Text>
+					<Box p='xs' style={{ backgroundColor: 'rgba(0, 255, 0, 0.1)', borderRadius: theme.radius.sm }}>
+						<Text c='#00ff00' ff='monospace'>
+							Kode mønster: {codePattern}
+						</Text>
+					</Box>
+					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+						<Loader size='sm' color='#00ff00' />
+					</Box>
 				</Box>
 			</Modal>
 
-			{/* Failure Modal */}
 			<Modal opened={showFailure} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center' }}>
-					<X size={60} color='red' stroke='md' style={{ marginBottom: 20 }} />
-					<Text size='xl' fw={700} mb='md'>
-						ACCESS DENIED
+				<Box p='md' style={{ textAlign: 'center', backgroundColor: '#180000', border: '1px solid #ff0000', borderRadius: theme.radius.md }}>
+					<Box mb={20} style={{ animation: 'shake 0.5s' }}>
+						<X size={60} color='#ff0000' stroke='md' />
+					</Box>
+					<Text size='xl' fw={700} mb='md' style={{ color: '#ff0000' }}>
+						ADGANG NÆGTET
 					</Text>
-					<Text mb='lg'>{attempts >= maxAttempts ? 'Too many failed attempts. System locked down.' : 'Time expired. Security protocols engaged.'}</Text>
-					<Text color='dimmed'>The correct command was: {targetCommand}</Text>
-					<Loader size='sm' style={{ marginTop: 20 }} />
+					<Text mb='lg' style={{ color: '#ff9090' }}>
+						{attempts >= maxAttempts ? 'For mange forkerte forsøg. System låst.' : 'Tiden udløb. Sikkerhedsprotokoller aktiveret.'}
+					</Text>
+					<Box p='xs' style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', borderRadius: theme.radius.sm }}>
+						<Text c='#ff5555' ff='monospace'>
+							Korrekt kommando var: {targetCommand}
+						</Text>
+					</Box>
+					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+						<Loader size='sm' color='#ff0000' />
+					</Box>
 				</Box>
 			</Modal>
 

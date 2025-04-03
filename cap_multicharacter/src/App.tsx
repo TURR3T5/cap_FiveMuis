@@ -10,7 +10,6 @@ const App: React.FC = () => {
 	useEffect(() => {
 		const loadCharacters = async () => {
 			try {
-				// For development, load mock data
 				const mockCharacters: Character[] = [
 					{
 						id: '1',
@@ -65,7 +64,6 @@ const App: React.FC = () => {
 		setCharacters(updatedCharacters);
 
 		console.log('Character selected:', character);
-		// This is where you would send a message to the FiveM server
 	};
 
 	const handleCreateCharacter = () => {
@@ -90,7 +88,6 @@ const App: React.FC = () => {
 		setView('selector');
 
 		console.log('Character created:', newCharacter);
-		// This is where you would send a message to the FiveM server
 	};
 
 	const handleCancelCreate = () => {

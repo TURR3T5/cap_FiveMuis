@@ -1,0 +1,28 @@
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+@keyframes pulseterminal {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+@keyframes pulsedecrypt {
+    0% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.1); }
+    100% { opacity: 0.3; transform: scale(1); }
+}
+@keyframes flicker {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes neural-pulse {
+    0% { opacity: 0.1; transform: scale(0.9); }
+    25% { opacity: 0.3; transform: scale(1.0); }
+    50% { opacity: 0.5; transform: scale(1.1); }
+    75% { opacity: 0.3; transform: scale(1.0); }
+    100% { opacity: 0.1; transform: scale(0.9); }
+}

@@ -24,14 +24,12 @@ export const MinigameDebugger: React.FC = () => {
 	const [logs, setLogs] = useState<DebugLogEntry[]>([]);
 	const [expanded, setExpanded] = useState(true);
 
-	// Initialize selected game when component mounts
 	useEffect(() => {
 		if (Object.keys(minigames).length > 0 && !selectedGame) {
 			setSelectedGame(Object.keys(minigames)[0]);
 		}
 	}, [selectedGame]);
 
-	// Function to start a game in debug mode
 	const handleStartGame = () => {
 		if (!selectedGame) {
 			addLog({
@@ -53,7 +51,6 @@ export const MinigameDebugger: React.FC = () => {
 				customOptions: JSON.parse(customOptions),
 			};
 
-			// Add to debug log
 			addLog({
 				id: config.id,
 				time: new Date(),
@@ -61,7 +58,6 @@ export const MinigameDebugger: React.FC = () => {
 				data: config,
 			});
 
-			// Start the game
 			startGame(selectedGame, config);
 		} catch (error) {
 			addLog({
@@ -73,14 +69,8 @@ export const MinigameDebugger: React.FC = () => {
 		}
 	};
 
-	// Function to add a log entry
 	const addLog = (entry: DebugLogEntry) => {
-		setLogs((prev) => [entry, ...prev].slice(0, 50)); // Keep last 50 logs
-	};
-
-	// Clear logs
-	const clearLogs = () => {
-		setLogs([]);
+		setLogs((prev) => [entry, ...prev].slice(0, 50));
 	};
 
 	if (!debugMode) {
@@ -93,7 +83,6 @@ export const MinigameDebugger: React.FC = () => {
 		);
 	}
 
-	// Create minigame options for dropdown
 	const minigameOptions = Object.keys(minigames).map((id) => ({
 		value: id,
 		label: id.charAt(0).toUpperCase() + id.slice(1).replace(/([A-Z])/g, ' $1'),
@@ -146,16 +135,6 @@ export const MinigameDebugger: React.FC = () => {
 									<Accordion.Control>
 										<Group justify='space-between' style={{ width: '100%' }}>
 											<span>Debug Logs</span>
-											<ActionIcon
-												size='xs'
-												variant='subtle'
-												onClick={(e) => {
-													e.stopPropagation();
-													clearLogs();
-												}}
-											>
-												<RefreshCw size={14} />
-											</ActionIcon>
 										</Group>
 									</Accordion.Control>
 									<Accordion.Panel>
@@ -190,15 +169,7 @@ export const MinigameDebugger: React.FC = () => {
 								</Button>
 
 								{activeGame && (
-									<Button
-										leftSection={<X size={16} />}
-										variant='light'
-										color='red'
-										onClick={() => {
-											// We don't need to call cancelGame() here as it's handled by the X button in the minigame itself
-										}}
-										fullWidth
-									>
+									<Button leftSection={<X size={16} />} variant='light' color='red' onClick={() => {}} fullWidth>
 										Active: {activeGame.charAt(0).toUpperCase() + activeGame.slice(1).replace(/([A-Z])/g, ' $1')}
 									</Button>
 								)}

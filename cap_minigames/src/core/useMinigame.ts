@@ -10,25 +10,22 @@ export const useMinigame = (gameId: string) => {
     cancelGame,
     debugMode
   } = useContext(MinigameContext);
-  
+
   const [startTime, setStartTime] = useState<number | null>(null);
   const [attempts, setAttempts] = useState(0);
   const [timeElapsed, setTimeElapsed] = useState(0);
-  
-  // Use refs to track timer state
+
   const timerRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
   const isActive = activeGame === gameId || debugMode;
 
-  // Setup and clean up the timer
   useEffect(() => {
     if (isActive && !startTimeRef.current) {
       const now = Date.now();
       setStartTime(now);
       startTimeRef.current = now;
-      
-      // Set up timer to update timeElapsed every 100ms
+
       timerRef.current = window.setInterval(() => {
         if (startTimeRef.current) {
           const elapsed = Date.now() - startTimeRef.current;
@@ -36,7 +33,7 @@ export const useMinigame = (gameId: string) => {
         }
       }, 100);
     } else if (!isActive) {
-      // Clean up when game ends or component unmounts
+
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -46,8 +43,7 @@ export const useMinigame = (gameId: string) => {
       setAttempts(0);
       setTimeElapsed(0);
     }
-    
-    // Cleanup on unmount
+
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -57,12 +53,12 @@ export const useMinigame = (gameId: string) => {
 
   const completeGame = useCallback(
     (success: boolean, score?: number) => {
-      // Stop the timer
+
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
-      
+
       const result: MinigameResult = {
         success,
         score,

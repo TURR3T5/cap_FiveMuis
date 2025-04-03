@@ -12,8 +12,10 @@
   "dependencies": {
     "@mantine/core": "^7.17.3",
     "@mantine/hooks": "^7.17.3",
+    "@types/react-beautiful-dnd": "^13.1.8",
     "lucide-react": "^0.487.0",
     "react": "^19.1.0",
+    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^19.1.0",
     "react-terminal-ui": "^1.4.0"
   },

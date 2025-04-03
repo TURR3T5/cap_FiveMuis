@@ -1,4 +1,3 @@
-// src/minigames/NeuralNetworkTraining/index.tsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, Paper, Group, Text, Progress, Button, ActionIcon, useMantineTheme, Stack, Modal, Grid, ScrollArea, Drawer } from '@mantine/core';
 import { Clock, Check, X, Brain, HelpCircle, ChevronRight, AlertTriangle, Loader } from 'lucide-react';
@@ -14,7 +13,6 @@ const NeuralNetworkTraining: React.FC<MinigameProps> = ({ config, onComplete, on
 	const customConfig = config?.customOptions as NeuralNetworkConfig;
 	const nnConfig = useMemo(() => generateNeuralNetworkConfig(config?.difficulty || 'medium', customConfig), [config?.difficulty, customConfig]);
 
-	// Game state
 	const [dataPoints, setDataPoints] = useState<DataPoint[]>([]);
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -27,11 +25,9 @@ const NeuralNetworkTraining: React.FC<MinigameProps> = ({ config, onComplete, on
 	const [gameStarted, setGameStarted] = useState(false);
 	const [forceRender, setForceRender] = useState(0);
 
-	// Initialize game data
 	const initializeGame = useCallback(() => {
 		if (!config) return;
 
-		// Generate data points based on config
 		const newDataPoints = generateDataPoints(nnConfig.dataPointCount || 15, nnConfig.categories || ['animal', 'person', 'vehicle'], nnConfig.difficultyMultiplier || 1.0);
 
 		setDataPoints(newDataPoints);
@@ -42,9 +38,8 @@ const NeuralNetworkTraining: React.FC<MinigameProps> = ({ config, onComplete, on
 		setShowFeedback(false);
 		setFeedbackCorrect(false);
 		setShowResults(false);
-		setGameStarted(false);
+		setGameStarted(true);
 
-		// Debug logging
 		if (debug) {
 			console.log('Neural Network Training initialized with:', {
 				config: nnConfig,
@@ -57,16 +52,14 @@ const NeuralNetworkTraining: React.FC<MinigameProps> = ({ config, onComplete, on
 		if (isActive) {
 			initializeGame();
 
-			// Set up interval to force re-renders for timer updates
-			const interval = setInterval(() => {
+			const timerInterval = setInterval(() => {
 				setForceRender((prev) => prev + 1);
-			}, 100); // Update every 100ms
+			}, 100);
 
-			return () => clearInterval(interval);
+			return () => clearInterval(timerInterval);
 		}
 	}, [isActive, initializeGame]);
 
-	// Handle category selection
 	const handleCategorySelect = (category: CategoryType) => {
 		if (!gameStarted) {
 			setGameStarted(true);
@@ -86,15 +79,12 @@ const NeuralNetworkTraining: React.FC<MinigameProps> = ({ config, onComplete, on
 			setCorrectAnswers((prev) => prev + 1);
 		}
 
-		// Show feedback for a short time
 		setTimeout(() => {
 			setShowFeedback(false);
 			setSelectedCategory(null);
 			setTimeForCurrent(0);
 
-			// Move to next data point
 			if (currentIndex + 1 >= dataPoints.length) {
-				// Game completed
 				finishGame();
 			} else {
 				setCurrentIndex((prev) => prev + 1);
@@ -102,15 +92,13 @@ const NeuralNetworkTraining: React.FC<MinigameProps> = ({ config, onComplete, on
 		}, 700);
 	};
 
-	// Auto-advance if time per decision is exceeded
 	useEffect(() => {
 		if (!gameStarted || showFeedback || currentIndex >= dataPoints.length) return;
 
 		const timer = setTimeout(() => {
-			setTimeForCurrent((prev) => prev + 100); // Increment time by 100ms
+			setTimeForCurrent((prev) => prev + 100);
 
 			if (timeForCurrent >= (nnConfig.timePerDecision || 3000)) {
-				// Time's up for this decision, treat as wrong answer
 				setShowFeedback(true);
 				setFeedbackCorrect(false);
 
@@ -118,9 +106,7 @@ const NeuralNetworkTraining: React.FC<MinigameProps> = ({ config, onComplete, on
 					setShowFeedback(false);
 					setTimeForCurrent(0);
 
-					// Move to next data point
 					if (currentIndex + 1 >= dataPoints.length) {
-						// Game completed
 						finishGame();
 					} else {
 						setCurrentIndex((prev) => prev + 1);
@@ -132,7 +118,6 @@ const NeuralNetworkTraining: React.FC<MinigameProps> = ({ config, onComplete, on
 		return () => clearTimeout(timer);
 	}, [forceRender, gameStarted, showFeedback, currentIndex, dataPoints.length, timeForCurrent, nnConfig.timePerDecision]);
 
-	// Finish the game
 	const finishGame = () => {
 		setShowResults(true);
 
@@ -146,7 +131,6 @@ const NeuralNetworkTraining: React.FC<MinigameProps> = ({ config, onComplete, on
 			mistakes,
 		};
 
-		// Success threshold based on difficulty
 		const successThreshold = config?.difficulty === 'easy' ? 70 : config?.difficulty === 'medium' ? 80 : 85;
 
 		setTimeout(() => {
@@ -159,7 +143,6 @@ const NeuralNetworkTraining: React.FC<MinigameProps> = ({ config, onComplete, on
 		}, 3000);
 	};
 
-	// Current data point
 	const currentDataPoint = dataPoints[currentIndex];
 
 	if (!isActive || !config || !currentDataPoint) return null;
@@ -167,7 +150,6 @@ const NeuralNetworkTraining: React.FC<MinigameProps> = ({ config, onComplete, on
 	const timeProgress = config.timeLimit ? (timeElapsed / config.timeLimit) * 100 : 0;
 	const decisionTimeProgress = (timeForCurrent / (nnConfig.timePerDecision || 3000)) * 100;
 
-	// Category colors
 	const categoryColors: Record<CategoryType, string> = {
 		animal: theme.colors.green[6],
 		person: theme.colors.orange[6],
@@ -213,210 +195,197 @@ const NeuralNetworkTraining: React.FC<MinigameProps> = ({ config, onComplete, on
 
 			<Paper p='md' radius='md' withBorder>
 				<Stack gap='md'>
-					{!gameStarted ? (
-						<Box style={{ textAlign: 'center', padding: '20px 0' }}>
-							<Brain size={60} style={{ margin: '0 auto 20px' }} />
-							<Text size='xl' fw={700} mb='md'>
-								Neural Network Training
+					<>
+						{}
+						<Group justify='space-between'>
+							<Text size='sm'>
+								Training Progress: {currentIndex + 1} / {dataPoints.length}
 							</Text>
-							<Text mb='lg'>Train the AI by categorizing images correctly and quickly. Sort each image into its proper category to improve the neural network.</Text>
-							<Button size='md' rightSection={<ChevronRight size={16} />} onClick={() => setGameStarted(true)}>
-								Start Training
-							</Button>
+							<Progress value={(currentIndex / dataPoints.length) * 100} size='sm' w={200} />
+						</Group>
 
-							{nnConfig.showHelp && (
-								<Text mt='xl' size='sm' c='dimmed'>
-									Press the help button for category information
-								</Text>
-							)}
-						</Box>
-					) : (
-						<>
-							{/* Progress indicator */}
-							<Group justify='space-between'>
-								<Text size='sm'>
-									Training Progress: {currentIndex + 1} / {dataPoints.length}
-								</Text>
-								<Progress value={(currentIndex / dataPoints.length) * 100} size='sm' w={200} />
-							</Group>
+						{}
+						<Group justify='space-between'>
+							<Text size='sm'>Decision Timer:</Text>
+							<Progress value={100 - decisionTimeProgress} color={decisionTimeProgress > 75 ? 'red' : decisionTimeProgress > 50 ? 'yellow' : 'green'} size='sm' w={200} />
+						</Group>
 
-							{/* Decision timer */}
-							<Group justify='space-between'>
-								<Text size='sm'>Decision Timer:</Text>
-								<Progress value={100 - decisionTimeProgress} color={decisionTimeProgress > 75 ? 'red' : decisionTimeProgress > 50 ? 'yellow' : 'green'} size='sm' w={200} />
-							</Group>
-
-							{/* Main content area with image */}
+						{}
+						<Box
+							style={{
+								position: 'relative',
+								height: 220,
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								border: `1px solid ${theme.colors.dark[4]}`,
+								borderRadius: theme.radius.md,
+								overflow: 'hidden',
+								backgroundColor: theme.colors.dark[8],
+							}}
+						>
+							{}
 							<Box
 								style={{
-									position: 'relative',
-									height: 220,
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									border: `1px solid ${theme.colors.dark[4]}`,
+									width: 180,
+									height: 180,
 									borderRadius: theme.radius.md,
 									overflow: 'hidden',
-									backgroundColor: theme.colors.dark[8],
+									position: 'relative',
 								}}
 							>
-								{/* Image to classify */}
-								<Box
+								<img
+									src={getCategoryPlaceholderImage(currentDataPoint.category, 180)}
+									alt='Item to classify'
 									style={{
-										width: 180,
-										height: 180,
-										borderRadius: theme.radius.md,
-										overflow: 'hidden',
-										position: 'relative',
+										width: '100%',
+										height: '100%',
+										objectFit: 'cover',
+										opacity: showFeedback ? 0.7 : 1,
 									}}
-								>
-									<img
-										src={getCategoryPlaceholderImage(currentDataPoint.category, 180)}
-										alt='Item to classify'
+								/>
+
+								{}
+								{showFeedback && (
+									<Box
 										style={{
+											position: 'absolute',
+											top: 0,
+											left: 0,
 											width: '100%',
 											height: '100%',
-											objectFit: 'cover',
-											opacity: showFeedback ? 0.7 : 1,
+											display: 'flex',
+											flexDirection: 'column',
+											alignItems: 'center',
+											justifyContent: 'center',
+											backgroundColor: feedbackCorrect ? 'rgba(0, 180, 0, 0.3)' : 'rgba(180, 0, 0, 0.3)',
+											backdropFilter: 'blur(2px)',
 										}}
-									/>
+									>
+										{feedbackCorrect ? (
+											<Check size={50} color='white' />
+										) : (
+											<>
+												<X size={50} color='white' />
+												<Text c='white' mt={5} fw={500}>
+													{currentDataPoint.category}
+												</Text>
+											</>
+										)}
+									</Box>
+								)}
+							</Box>
+						</Box>
 
-									{/* Feedback overlay */}
-									{showFeedback && (
+						{}
+						<Box>
+							<Text size='sm' mb='xs'>
+								Feature Analysis:
+							</Text>
+							<Group justify='center' gap='md'>
+								{currentDataPoint.features.map((feature, idx) => (
+									<Box
+										key={idx}
+										style={{
+											width: 20,
+											height: 60,
+											backgroundColor: theme.colors.dark[4],
+											borderRadius: theme.radius.sm,
+											overflow: 'hidden',
+											position: 'relative',
+										}}
+									>
 										<Box
 											style={{
 												position: 'absolute',
-												top: 0,
-												left: 0,
+												bottom: 0,
 												width: '100%',
-												height: '100%',
-												display: 'flex',
-												flexDirection: 'column',
-												alignItems: 'center',
-												justifyContent: 'center',
-												backgroundColor: feedbackCorrect ? 'rgba(0, 180, 0, 0.3)' : 'rgba(180, 0, 0, 0.3)',
-												backdropFilter: 'blur(2px)',
+												height: `${feature * 100}%`,
+												backgroundColor: theme.colors.blue[feature > 0.7 ? 7 : feature > 0.4 ? 5 : 3],
+												transition: 'height 0.3s ease',
 											}}
-										>
-											{feedbackCorrect ? (
-												<Check size={50} color='white' />
-											) : (
-												<>
-													<X size={50} color='white' />
-													<Text c='white' mt={5} fw={500}>
-														{currentDataPoint.category}
-													</Text>
-												</>
-											)}
-										</Box>
-									)}
-								</Box>
-							</Box>
-
-							{/* Feature visualization */}
-							<Box>
-								<Text size='sm' mb='xs'>
-									Feature Analysis:
-								</Text>
-								<Group justify='center' gap='md'>
-									{currentDataPoint.features.map((feature, idx) => (
-										<Box
-											key={idx}
-											style={{
-												width: 20,
-												height: 60,
-												backgroundColor: theme.colors.dark[4],
-												borderRadius: theme.radius.sm,
-												overflow: 'hidden',
-												position: 'relative',
-											}}
-										>
-											<Box
-												style={{
-													position: 'absolute',
-													bottom: 0,
-													width: '100%',
-													height: `${feature * 100}%`,
-													backgroundColor: theme.colors.blue[feature > 0.7 ? 7 : feature > 0.4 ? 5 : 3],
-													transition: 'height 0.3s ease',
-												}}
-											/>
-										</Box>
-									))}
-								</Group>
-							</Box>
-
-							{/* Category selection buttons */}
-							<Grid>
-								{nnConfig.categories?.map((category) => (
-									<Grid.Col span={4} key={category}>
-										<Button
-											fullWidth
-											variant={selectedCategory === category ? 'filled' : 'light'}
-											color={categoryColors[category] ? undefined : undefined}
-											style={{
-												backgroundColor: selectedCategory === category ? categoryColors[category] : 'transparent',
-												borderColor: categoryColors[category],
-												borderWidth: '1px',
-												borderStyle: 'solid',
-											}}
-											onClick={() => handleCategorySelect(category)}
-											disabled={showFeedback}
-										>
-											{category.charAt(0).toUpperCase() + category.slice(1)}
-										</Button>
-									</Grid.Col>
+										/>
+									</Box>
 								))}
-							</Grid>
+							</Group>
+						</Box>
 
-							{/* Help button */}
-							{nnConfig.showHelp && (
-								<Group justify='center'>
-									<Button variant='subtle' leftSection={<HelpCircle size={16} />} onClick={() => setShowHelp(true)}>
-										Help
+						{}
+						<Grid>
+							{nnConfig.categories?.map((category) => (
+								<Grid.Col span={4} key={category}>
+									<Button
+										fullWidth
+										variant={selectedCategory === category ? 'filled' : 'light'}
+										color={categoryColors[category] ? undefined : undefined}
+										style={{
+											backgroundColor: selectedCategory === category ? categoryColors[category] : 'transparent',
+											borderColor: categoryColors[category],
+											borderWidth: '1px',
+											borderStyle: 'solid',
+										}}
+										onClick={() => handleCategorySelect(category)}
+										disabled={showFeedback}
+									>
+										{category.charAt(0).toUpperCase() + category.slice(1)}
 									</Button>
-								</Group>
-							)}
-						</>
-					)}
+								</Grid.Col>
+							))}
+						</Grid>
+
+						{}
+						{nnConfig.showHelp && (
+							<Group justify='center'>
+								<Button variant='subtle' leftSection={<HelpCircle size={16} />} onClick={() => setShowHelp(true)}>
+									Help
+								</Button>
+							</Group>
+						)}
+					</>
 				</Stack>
 			</Paper>
 
-			{/* Results Modal */}
 			<Modal opened={showResults} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
-				<Box p='md' style={{ textAlign: 'center' }}>
-					<Brain size={60} stroke='md' style={{ marginBottom: 20 }} />
-					<Text size='xl' fw={700} mb='md'>
-						TRAINING COMPLETE
+				<Box p='md' style={{ textAlign: 'center', background: 'linear-gradient(135deg, #100030 0%, #300060 100%)', border: '1px solid #a000ff', borderRadius: theme.radius.md }}>
+					<Box mb={20} style={{ position: 'relative' }}>
+						<Brain size={60} color='#a000ff' stroke='md' />
+						<Box style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', boxShadow: '0 0 15px #a000ff', opacity: 0.3, animation: 'neural-pulse 2s infinite' }} />
+					</Box>
+					<Text size='xl' fw={700} mb='md' style={{ color: '#a000ff' }}>
+						AI TRÆNING FULDFØRT
 					</Text>
 
-					<Stack gap='md' mb='lg'>
+					<Stack gap='md' mb='lg' style={{ backgroundColor: 'rgba(160, 0, 255, 0.1)', padding: '15px', borderRadius: theme.radius.sm }}>
 						<Group justify='space-between'>
-							<Text>Accuracy:</Text>
-							<Text fw={700}>{Math.round(calculateAccuracy(dataPoints.length, correctAnswers))}%</Text>
+							<Text style={{ color: '#d0a0ff' }}>Nøjagtighed:</Text>
+							<Text fw={700} style={{ color: '#ffffff' }}>
+								{Math.round(calculateAccuracy(dataPoints.length, correctAnswers))}%
+							</Text>
 						</Group>
 
 						<Group justify='space-between'>
-							<Text>Images Processed:</Text>
-							<Text>{dataPoints.length}</Text>
+							<Text style={{ color: '#d0a0ff' }}>Behandlede Billeder:</Text>
+							<Text style={{ color: '#ffffff' }}>{dataPoints.length}</Text>
 						</Group>
 
 						<Group justify='space-between'>
-							<Text>Correct Classifications:</Text>
-							<Text>{correctAnswers}</Text>
+							<Text style={{ color: '#d0a0ff' }}>Korrekte Klassifikationer:</Text>
+							<Text style={{ color: '#ffffff' }}>{correctAnswers}</Text>
 						</Group>
 
 						<Group justify='space-between'>
-							<Text>Average Time Per Image:</Text>
-							<Text>{(timeElapsed / 1000 / dataPoints.length).toFixed(1)}s</Text>
+							<Text style={{ color: '#d0a0ff' }}>Gennemsnitlig Tid Per Billede:</Text>
+							<Text style={{ color: '#ffffff' }}>{(timeElapsed / 1000 / dataPoints.length).toFixed(1)}s</Text>
 						</Group>
 					</Stack>
 
-					<Loader size='sm' style={{ marginTop: 20 }} />
+					<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
+						<Loader size='sm' color='#a000ff' type='bars' />
+					</Box>
 				</Box>
 			</Modal>
 
-			{/* Help Drawer */}
+			{}
 			<Drawer opened={showHelp} onClose={() => setShowHelp(false)} position='right' title='Neural Network Training Guide' padding='lg' size='md'>
 				<ScrollArea h={500}>
 					<Text style={{ whiteSpace: 'pre-wrap' }}>{getHelpText(nnConfig.categories || [])}</Text>
