@@ -1,4 +1,3 @@
-import { calculateDifficulty } from '../../core/utils';
 import { BiometricPattern, BiometricType, BiometricOverrideConfig } from './types';
 
 export const generateGridPoints = (gridSize: number): string[] => {
@@ -39,7 +38,7 @@ export const generateBiometricPattern = (
 };
 
 export const generatePatternPath = (
-  nodes: string[],
+  _nodes: string[],
   type: BiometricType,
   complexity: number,
   gridSize: number

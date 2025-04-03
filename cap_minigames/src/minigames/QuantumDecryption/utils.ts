@@ -1,4 +1,4 @@
-import { calculateDifficulty, shuffleArray } from '../../core/utils';
+import { shuffleArray } from '../../core/utils';
 import { QuantumParticle, QuantumParticleType, QuantumPattern } from './types';
 
 export const generateQuantumParticles = (

@@ -1,4 +1,3 @@
-import { calculateDifficulty } from '../../core/utils';
 import { SignalReceiver, TargetSignal, SignalTriangulationConfig } from './types';
 
 export const generateReceivers = (

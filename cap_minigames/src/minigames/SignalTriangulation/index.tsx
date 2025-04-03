@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Modal, Slider, ActionIcon } from '@mantine/core';
-import { Clock, Flag, RotateCcw, Check, X, MapPin, Antenna, Radio, Loader } from 'lucide-react';
+import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Modal, Slider } from '@mantine/core';
+import { Clock, RotateCcw, X, MapPin, Antenna, Radio, Loader } from 'lucide-react';
 import { MinigameProps } from '../../core/types';
 import { useMinigame } from '../../core/useMinigame';
 import { SignalReceiver, TargetSignal, SignalTriangulationConfig } from './types';
@@ -33,7 +33,7 @@ const SignalTriangulation: React.FC<MinigameProps> = ({ config, onComplete, onCa
 
 		const newTargetSignal = generateTargetSignal(newReceivers, minFrequency, maxFrequency);
 
-		const initialFrequencies = newReceivers.map((r) => minFrequency + Math.floor(Math.random() * (maxFrequency - minFrequency)));
+		const initialFrequencies = newReceivers.map((_r) => minFrequency + Math.floor(Math.random() * (maxFrequency - minFrequency)));
 
 		setReceivers(newReceivers);
 		setTargetSignal(newTargetSignal);

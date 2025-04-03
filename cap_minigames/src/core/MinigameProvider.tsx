@@ -16,7 +16,7 @@ export const MinigameContext = createContext<MinigameContextValue>({
 export const MinigameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const [activeGame, setActiveGame] = useState<string | null>(null);
 	const [gameConfig, setGameConfig] = useState<MinigameConfig | null>(null);
-	const [debugMode, setDebugMode] = useState<boolean>(process.env.NODE_ENV === 'development');
+	const [debugMode, setDebugMode] = useState<boolean>(/* process.env.NODE_ENV === 'development' */ false);
 
 	const startGame = useCallback((gameId: string, config: MinigameConfig) => {
 		setActiveGame(gameId);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Paper, Title, Group, Button, NumberInput, Stack, Switch, Accordion, Text, JsonInput, Badge, ActionIcon } from '@mantine/core';
 import { SimpleCombobox } from './components/SimpleCombobox';
-import { Bug, Play, Settings, RefreshCw, X } from 'lucide-react';
+import { Bug, Play, Settings, X } from 'lucide-react';
 import { useContext } from 'react';
 import { MinigameContext } from './core/MinigameProvider';
 import { minigames } from './minigames/registry';

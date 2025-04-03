@@ -397,39 +397,6 @@ const BiometricOverride: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 		return { x: gridX, y: gridY };
 	};
 
-	const interpolatePoints = (p1: { x: number; y: number }, p2: { x: number; y: number }): { x: number; y: number }[] => {
-		const points: { x: number; y: number }[] = [];
-
-		let x1 = p1.x;
-		let y1 = p1.y;
-		const x2 = p2.x;
-		const y2 = p2.y;
-
-		const dx = Math.abs(x2 - x1);
-		const dy = Math.abs(y2 - y1);
-		const sx = x1 < x2 ? 1 : -1;
-		const sy = y1 < y2 ? 1 : -1;
-		let err = dx - dy;
-
-		while (true) {
-			points.push({ x: x1, y: y1 });
-
-			if (x1 === x2 && y1 === y2) break;
-
-			const e2 = 2 * err;
-			if (e2 > -dy) {
-				err -= dy;
-				x1 += sx;
-			}
-			if (e2 < dx) {
-				err += dx;
-				y1 += sy;
-			}
-		}
-
-		return points;
-	};
-
 	const updateOverallProgress = () => {
 		const totalSimilarity = Object.values(similarities).reduce((sum, val) => sum + val, 0);
 		const newProgress = (totalSimilarity / (patterns.length * 100)) * 100;

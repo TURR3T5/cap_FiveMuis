@@ -204,7 +204,7 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 						{}
 						<svg width='sm' height='sm' style={{ position: 'absolute', top: 0, left: 0 }}>
 							{}
-							{userConnections.map(([a, b], index) => {
+							{userConnections.map(([a, b], _index) => {
 								const particleA = getParticleById(a);
 								const particleB = getParticleById(b);
 
@@ -215,7 +215,7 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 
 							{}
 							{showTarget &&
-								targetPattern.connections.map(([a, b], index) => {
+								targetPattern.connections.map(([a, b], _index) => {
 									const particleA = getParticleById(a);
 									const particleB = getParticleById(b);
 
