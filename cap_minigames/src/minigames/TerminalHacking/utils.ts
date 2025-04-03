@@ -35,10 +35,10 @@ export const generateTerminalOutput = (
   targetCommand: string
 ): string => {
   const outputs = [
-    `System vulnerable at endpoint: use '${targetCommand}' to exploit`,
-    `Security hole detected: '${targetCommand}' can bypass protections`,
-    `Backdoor found: '${targetCommand}' will grant access`,
-    `Protocol weakness identified: '${targetCommand}' to penetrate defenses`
+    `[VULNERABILITY SCAN] Found security breach. The '${targetCommand}' command can exploit this vulnerability.`,
+    `[SYSTEM ANALYSIS] Security protocol weakness detected. Try '${targetCommand}' to bypass.`,
+    `[NETWORK LOG] Unpatched backdoor found. Use '${targetCommand}' to gain access.`,
+    `[SECURITY REPORT] System vulnerable to '${targetCommand}' exploit.`
   ];
   
   const irrelevantOutputs = [
@@ -52,9 +52,16 @@ export const generateTerminalOutput = (
     'User accounts enumerated'
   ];
   
-  let output = `SECURITY TERMINAL v3.4.2\n=======================\n\n`;
-  output += `Available commands:\n${commandSet.join('\n')}\n\n`;
+  let output = `Microsoft Windows [Version 10.0.19045.3803]\n(c) Microsoft Corporation. All rights reserved.\n\n`;
+  output += `C:\\hack> scan --target system --verbose\n\n`;
+  output += `SYSTEM SCAN RESULTS:\n`;
   output += shuffleArray([...irrelevantOutputs, randomFromArray(outputs)]).join('\n\n');
+  output += `\n\n`;
+  output += `C:\\hack> cmdlist\n\n`;
+  output += `Available commands:\n`;
+  output += commandSet.join('\n');
+  output += `\n\n`;
+  output += `Type 'help' for more information or 'exit' to cancel\n\n`;
   
   return output;
 };

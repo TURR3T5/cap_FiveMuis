@@ -1,6 +1,7 @@
+// src/minigames/QuantumDecryption/index.tsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Paper, Group, Text, Progress, Button, ActionIcon, useMantineTheme, Stack } from '@mantine/core';
-import { Clock, RotateCcw, Check, X, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Box, Paper, Group, Text, Progress, Button, useMantineTheme, Stack, Modal } from '@mantine/core';
+import { Clock, RotateCcw, Check, X, AlertTriangle, Eye, EyeOff, Loader } from 'lucide-react';
 import { MinigameProps } from '../../core/types';
 import { useMinigame } from '../../core/useMinigame';
 import { QuantumParticle, QuantumPattern, QuantumDecryptionConfig } from './types';
@@ -22,6 +23,9 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 	const [selectedParticle, setSelectedParticle] = useState<string | null>(null);
 	const [similarity, setSimilarity] = useState(0);
 	const [showTarget, setShowTarget] = useState(false);
+	const [showSuccess, setShowSuccess] = useState(false);
+	const [showFailure, setShowFailure] = useState(false);
+	const [forceRender, setForceRender] = useState(0);
 
 	const particleColorMap = {
 		alpha: theme.colors.blue[6],
@@ -49,6 +53,8 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 		setSelectedParticle(null);
 		setSimilarity(0);
 		setShowTarget(false);
+		setShowSuccess(false);
+		setShowFailure(false);
 
 		// Debug logging
 		if (debug) {
@@ -62,6 +68,13 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 	useEffect(() => {
 		if (isActive) {
 			initializeGame();
+
+			// Set up interval to force re-renders for timer updates
+			const interval = setInterval(() => {
+				setForceRender((prev) => prev + 1);
+			}, 100); // Update every 100ms
+
+			return () => clearInterval(interval);
 		}
 	}, [isActive, initializeGame]);
 
@@ -82,20 +95,26 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 			const successThreshold = config?.difficulty === 'easy' ? 80 : config?.difficulty === 'medium' ? 90 : 100;
 
 			if (newSimilarity >= successThreshold) {
+				setShowSuccess(true);
+
 				setTimeout(() => {
 					completeGame(true, newSimilarity);
 					onComplete?.({ success: true, score: newSimilarity, timeTaken: timeElapsed });
-				}, 1000);
+				}, 2000);
 			}
 		}
 	}, [userPattern, targetPattern, completeGame, onComplete, timeElapsed, config?.difficulty]);
 
 	useEffect(() => {
 		if (config?.timeLimit && timeElapsed >= config.timeLimit) {
-			completeGame(false, similarity);
-			onComplete?.({ success: false, score: similarity, timeTaken: timeElapsed });
+			setShowFailure(true);
+
+			setTimeout(() => {
+				completeGame(false, similarity);
+				onComplete?.({ success: false, score: similarity, timeTaken: timeElapsed });
+			}, 2000);
 		}
-	}, [timeElapsed, config?.timeLimit, completeGame, onComplete, similarity]);
+	}, [timeElapsed, config?.timeLimit, completeGame, onComplete, similarity, forceRender]);
 
 	const handleParticleClick = (particleId: string) => {
 		if (selectedParticle === null) {
@@ -128,6 +147,11 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 
 	const toggleTargetHint = () => {
 		setShowTarget((prev) => !prev);
+	};
+
+	// Get particle by ID
+	const getParticleById = (id: string) => {
+		return particles.find((p) => p.id === id);
 	};
 
 	if (!isActive || !targetPattern || !config) return null;
@@ -165,6 +189,15 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 
 			<Paper p='md' radius='md' withBorder>
 				<Stack gap='md'>
+					{userConnections.length === 0 && (
+						<Box p='xs' bg={theme.colors.dark[6]} style={{ borderRadius: theme.radius.sm }}>
+							<Text ta='center' size='sm'>
+								<AlertTriangle size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 5 }} />
+								Click on particles to connect them and match the encryption pattern
+							</Text>
+						</Box>
+					)}
+
 					<Text size='sm'>Connect quantum particles to match the encryption pattern</Text>
 
 					<Box
@@ -177,20 +210,112 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 							overflow: 'hidden',
 						}}
 					>
-						{/* We'll implement a simplified version for now */}
-						<Text
-							style={{
-								position: 'absolute',
-								top: '50%',
-								left: '50%',
-								transform: 'translate(-50%, -50%)',
-								color: theme.white,
-							}}
-						>
-							Quantum Particle Grid Here
-						</Text>
+						{/* SVG for particle connections */}
+						<svg width='100%' height='100%' style={{ position: 'absolute', top: 0, left: 0 }}>
+							{/* User connections */}
+							{userConnections.map(([a, b], index) => {
+								const particleA = getParticleById(a);
+								const particleB = getParticleById(b);
 
-						{/* Just showing a simplified placeholder for the visualization */}
+								if (!particleA || !particleB) return null;
+
+								return <line key={`connection-${a}-${b}`} x1={`${particleA.position.x}%`} y1={`${particleA.position.y}%`} x2={`${particleB.position.x}%`} y2={`${particleB.position.y}%`} stroke='rgba(255, 255, 255, 0.7)' strokeWidth='2' />;
+							})}
+
+							{/* Target pattern connections (only visible if showTarget is true) */}
+							{showTarget &&
+								targetPattern.connections.map(([a, b], index) => {
+									const particleA = getParticleById(a);
+									const particleB = getParticleById(b);
+
+									if (!particleA || !particleB) return null;
+
+									const isUserConnection = userConnections.some(([c, d]) => (c === a && d === b) || (c === b && d === a));
+
+									return <line key={`target-${a}-${b}`} x1={`${particleA.position.x}%`} y1={`${particleA.position.y}%`} x2={`${particleB.position.x}%`} y2={`${particleB.position.y}%`} stroke={isUserConnection ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 0, 0, 0.5)'} strokeWidth='3' strokeDasharray='5,5' />;
+								})}
+
+							{/* Selected particle connection line (while dragging) */}
+							{selectedParticle && <line id='dragging-line' x1={`${getParticleById(selectedParticle)?.position.x || 0}%`} y1={`${getParticleById(selectedParticle)?.position.y || 0}%`} x2={`${Math.min(Math.max(0, forceRender % 2 === 0 ? 50 : 50.1), 100)}%`} y2={`${Math.min(Math.max(0, forceRender % 2 === 0 ? 50 : 50.1), 100)}%`} stroke='rgba(255, 255, 255, 0.3)' strokeWidth='2' strokeDasharray='3,3' />}
+						</svg>
+
+						{selectedParticle && (
+							<div
+								style={{
+									position: 'absolute',
+									top: 10,
+									left: 0,
+									right: 0,
+									textAlign: 'center',
+									backgroundColor: 'rgba(0,0,0,0.7)',
+									padding: '5px 10px',
+									borderRadius: theme.radius.sm,
+									zIndex: 20,
+								}}
+							>
+								<Text size='sm' c='white'>
+									Click another particle to connect
+								</Text>
+							</div>
+						)}
+						{particles.map((particle) => {
+							const isSelected = selectedParticle === particle.id;
+							const color = particleColorMap[particle.type];
+							const opacity = particleStateOpacity[particle.state];
+
+							return (
+								<Box
+									key={particle.id}
+									style={{
+										position: 'absolute',
+										left: `calc(${particle.position.x}% - 15px)`,
+										top: `calc(${particle.position.y}% - 15px)`,
+										width: 30,
+										height: 30,
+										borderRadius: '50%',
+										backgroundColor: color,
+										opacity: opacity,
+										transform: `rotate(${particle.rotation}deg)`,
+										border: isSelected ? `3px solid white` : 'none',
+										boxShadow: `0 0 10px ${color}`,
+										cursor: 'pointer',
+										transition: 'all 0.2s ease',
+										zIndex: isSelected ? 10 : 1,
+										animation: userConnections.length === 0 && !selectedParticle ? 'pulse 2s infinite' : 'none',
+									}}
+									onClick={() => handleParticleClick(particle.id)}
+								>
+									<style>{`
+                    @keyframes pulse {
+                      0% {
+                        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+                      }
+                      70% {
+                        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+                      }
+                      100% {
+                        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+                      }
+                    }
+                  `}</style>
+									<Box
+										style={{
+											position: 'absolute',
+											top: '50%',
+											left: '50%',
+											transform: 'translate(-50%, -50%)',
+											fontSize: 12,
+											fontWeight: 'bold',
+											color: 'white',
+											textShadow: '0 0 3px rgba(0,0,0,0.7)',
+										}}
+									>
+										{particle.type.charAt(0).toUpperCase()}
+									</Box>
+								</Box>
+							);
+						})}
+
 						<Box
 							style={{
 								position: 'absolute',
@@ -232,6 +357,32 @@ const QuantumDecryption: React.FC<MinigameProps> = ({ config, onComplete, onCanc
 					)}
 				</Stack>
 			</Paper>
+
+			{/* Success Modal */}
+			<Modal opened={showSuccess} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
+				<Box p='md' style={{ textAlign: 'center' }}>
+					<Check size={60} color='green' style={{ marginBottom: 20 }} />
+					<Text size='xl' fw={700} mb='md'>
+						DECRYPTION SUCCESSFUL
+					</Text>
+					<Text mb='lg'>Quantum pattern successfully decrypted.</Text>
+					<Text c='dimmed'>Match Rate: {Math.round(similarity)}%</Text>
+					<Loader size='sm' style={{ marginTop: 20 }} />
+				</Box>
+			</Modal>
+
+			{/* Failure Modal */}
+			<Modal opened={showFailure} onClose={() => {}} withCloseButton={false} centered padding='xl' size='md' radius='md'>
+				<Box p='md' style={{ textAlign: 'center' }}>
+					<X size={60} color='red' style={{ marginBottom: 20 }} />
+					<Text size='xl' fw={700} mb='md'>
+						DECRYPTION FAILED
+					</Text>
+					<Text mb='lg'>Unable to establish quantum pattern match.</Text>
+					<Text c='dimmed'>Match Rate: {Math.round(similarity)}%</Text>
+					<Loader size='sm' style={{ marginTop: 20 }} />
+				</Box>
+			</Modal>
 		</Box>
 	);
 };
