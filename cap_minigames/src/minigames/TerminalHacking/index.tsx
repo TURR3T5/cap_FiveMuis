@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Box, Progress, Text, Group, Paper, ScrollArea, TextInput, useMantineTheme } from '@mantine/core';
-import { Clock, X, Check, Terminal as TerminalIcon, AlertTriangle, Loader } from 'lucide-react';
+import { Clock, X, Check, Terminal as TerminalIcon, AlertTriangle } from 'lucide-react';
 import { MinigameProps } from '../../core/types';
 import { useMinigame } from '../../core/useMinigame';
 import { generateCommandSet, generateCodePattern, generateTerminalOutput } from './utils';
@@ -298,18 +298,26 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 						left: 0,
 						width: '100%',
 						height: '100%',
-						backgroundColor: 'rgba(0,0,0,0.7)',
+						backgroundColor: 'rgba(0,0,0,0.95)',
 						display: 'flex',
 						alignItems: 'center',
 						justifyContent: 'center',
-						flexDirection: 'column',
-						gap: '16px',
 						zIndex: 1000,
 					}}
 				>
-					<Box style={{ textAlign: 'center', backgroundColor: '#001800', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #00ff00', maxWidth: '80%' }}>
-						<Box mb={20} style={{ animation: 'pulseterminal 1.5s infinite' }}>
-							<Check size={60} color='#00ff00' />
+					<Paper
+						p='xl'
+						radius='md'
+						style={{
+							backgroundColor: '#222',
+							border: '1px solid #00ff00',
+							maxWidth: '500px',
+							width: '100%',
+							textAlign: 'center',
+						}}
+					>
+						<Box mb={30} style={{ animation: 'pulseterminal 1.5s infinite' }}>
+							<Check size={80} color='#00ff00' />
 						</Box>
 						<Text size='xl' fw={700} mb='md' style={{ color: '#00ff00' }}>
 							{successMessage}
@@ -317,15 +325,12 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 						<Text mb='lg' style={{ color: '#90ff90' }}>
 							{successDescription}
 						</Text>
-						<Box p='xs' style={{ backgroundColor: 'rgba(0, 255, 0, 0.1)', borderRadius: theme.radius.sm }}>
-							<Text c='#00ff00' ff='monospace'>
+						<Box p='md' style={{ backgroundColor: 'rgba(0, 255, 0, 0.1)', borderRadius: theme.radius.sm }}>
+							<Text c='#00ff00' ff='monospace' size='lg'>
 								Kode mønster: {codePattern}
 							</Text>
 						</Box>
-						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-							<Loader size='sm' color='#00ff00' />
-						</Box>
-					</Box>
+					</Paper>
 				</Box>
 			)}
 
@@ -337,18 +342,26 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 						left: 0,
 						width: '100%',
 						height: '100%',
-						backgroundColor: 'rgba(0,0,0,0.7)',
+						backgroundColor: 'rgba(0,0,0,0.95)',
 						display: 'flex',
 						alignItems: 'center',
 						justifyContent: 'center',
-						flexDirection: 'column',
-						gap: '16px',
 						zIndex: 1000,
 					}}
 				>
-					<Box style={{ textAlign: 'center', backgroundColor: '#180000', padding: '30px', borderRadius: theme.radius.md, border: '1px solid #ff0000', maxWidth: '80%' }}>
-						<Box mb={20} style={{ animation: 'shake 0.5s' }}>
-							<X size={60} color='#ff0000' />
+					<Paper
+						p='xl'
+						radius='md'
+						style={{
+							backgroundColor: '#222',
+							border: '1px solid #ff0000',
+							maxWidth: '500px',
+							width: '100%',
+							textAlign: 'center',
+						}}
+					>
+						<Box mb={30} style={{ animation: 'shake 0.5s' }}>
+							<X size={80} color='#ff0000' />
 						</Box>
 						<Text size='xl' fw={700} mb='md' style={{ color: '#ff0000' }}>
 							{failureMessage}
@@ -356,15 +369,12 @@ const TerminalHacking: React.FC<MinigameProps> = ({ config, onComplete, onCancel
 						<Text mb='lg' style={{ color: '#ff9090' }}>
 							{failureDescription}
 						</Text>
-						<Box p='xs' style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', borderRadius: theme.radius.sm }}>
-							<Text c='#ff5555' ff='monospace'>
+						<Box p='md' style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', borderRadius: theme.radius.sm }}>
+							<Text c='#ff5555' ff='monospace' size='lg'>
 								Korrekt kommando var: {targetCommand}
 							</Text>
 						</Box>
-						<Box mt={20} style={{ display: 'flex', justifyContent: 'center' }}>
-							<Loader size='sm' color='#ff0000' />
-						</Box>
-					</Box>
+					</Paper>
 				</Box>
 			)}
 
